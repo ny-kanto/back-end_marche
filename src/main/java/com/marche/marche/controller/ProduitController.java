@@ -90,16 +90,20 @@ public class ProduitController {
 
             List<Object> obj = new ArrayList<>();
 
-            for (int index = 0; index < photo.length; index++) {
-                byte[] photoBytes = photo[index].getBytes();
-
-                produitPhotos = new ProduitPhotos();
-                produitPhotos.setPhotos(photoBytes);
-                produitPhotos.setProduit(produit);
-
-                pps.saveProduitPhotos(produitPhotos);
-
-                obj.add(produitPhotos);
+            if (photo != null) {
+                if (photo.length > 0) {
+                    for (int index = 0; index < photo.length; index++) {
+                        byte[] photoBytes = photo[index].getBytes();
+        
+                        produitPhotos = new ProduitPhotos();
+                        produitPhotos.setPhotos(photoBytes);
+                        produitPhotos.setProduit(produit);
+        
+                        pps.saveProduitPhotos(produitPhotos);
+        
+                        obj.add(produitPhotos);
+                    }
+                }
             }
 
             APIResponse api = new APIResponse(null, obj);
@@ -206,12 +210,16 @@ public class ProduitController {
             List<ProduitPhotos> pp = pps.getProduitPhotosByProduit(te);
 
             List<Map<String, String>> photosWithMime = new ArrayList<>();
-            for (ProduitPhotos photo : pp) {
-                String mimeType = Utils.guessMimeType(photo.getPhotos());
-                Map<String, String> photoData = new HashMap<>();
-                photoData.put("base64", Base64.getEncoder().encodeToString(photo.getPhotos()));
-                photoData.put("mimeType", mimeType);
-                photosWithMime.add(photoData);
+            if (pp != null) {
+                if (pp.size() > 0) {
+                    for (ProduitPhotos photo : pp) {
+                        String mimeType = Utils.guessMimeType(photo.getPhotos());
+                        Map<String, String> photoData = new HashMap<>();
+                        photoData.put("base64", Base64.getEncoder().encodeToString(photo.getPhotos()));
+                        photoData.put("mimeType", mimeType);
+                        photosWithMime.add(photoData);
+                    }
+                }
             }
 
             obj.add(te.getNom());
