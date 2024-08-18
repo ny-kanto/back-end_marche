@@ -214,7 +214,13 @@ public class ProduitController {
                 photosWithMime.add(photoData);
             }
 
-            obj.add(te);
+            obj.add(te.getNom());
+            obj.add(te.getDescription());
+            obj.add(te.getPrix());
+            obj.add(te.getMinCommande());
+            obj.add(te.getDelaisLivraison());
+            obj.add(te.getUnite().getNom());
+            obj.add(te.getCategorie().getNom());
             obj.add(photosWithMime);
             APIResponse api = new APIResponse(null, obj);
             return ResponseEntity.ok(api);
