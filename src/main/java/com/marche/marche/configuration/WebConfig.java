@@ -11,7 +11,7 @@
 //     @Override
 //     public void addCorsMappings(CorsRegistry registry) {
 //         registry.addMapping("/**")
-//                 .allowedOrigins("http://localhost:5173/**") // Spécifiez explicitement l'origine de votre front-end
+//                 .allowedOrigins("https://ny-kanto.github.io/**") // Spécifiez explicitement l'origine de votre front-end
 //                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
 //                 .allowedHeaders("*")
 //                 .allowCredentials(true);
