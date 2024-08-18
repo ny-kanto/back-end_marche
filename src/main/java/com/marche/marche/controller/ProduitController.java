@@ -67,7 +67,7 @@ public class ProduitController {
             @RequestParam String nom, @RequestParam String description,
             @RequestParam String prix, @RequestParam("min_commande") String minCommande,
             @RequestParam("delais_livraison") String delaisLivraison, @RequestParam("id_categorie") String idCategorie,
-            @RequestParam("id_unite") String idUnite, @RequestParam MultipartFile[] photo) {
+            @RequestParam("id_unite") String idUnite, @RequestParam(required = false) MultipartFile[] photo) {
         try {
             int idUtilisateur = 0;
             if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
@@ -84,25 +84,21 @@ public class ProduitController {
             Produit produit = new Produit(nom, description, Double.valueOf(prix), Double.valueOf(minCommande),
                     Integer.valueOf(delaisLivraison), categorie, p, unite);
 
-            ProduitPhotos produitPhotos = null;
-
             ps.saveProduit(produit);
 
             List<Object> obj = new ArrayList<>();
 
-            if (photo != null) {
-                if (photo.length > 0) {
-                    for (int index = 0; index < photo.length; index++) {
-                        byte[] photoBytes = photo[index].getBytes();
-        
-                        produitPhotos = new ProduitPhotos();
-                        produitPhotos.setPhotos(photoBytes);
-                        produitPhotos.setProduit(produit);
-        
-                        pps.saveProduitPhotos(produitPhotos);
-        
-                        obj.add(produitPhotos);
-                    }
+            if (photo != null && photo.length > 0) {
+                for (MultipartFile file : photo) {
+                    byte[] photoBytes = file.getBytes();
+
+                    ProduitPhotos produitPhotos = new ProduitPhotos();
+                    produitPhotos.setPhotos(photoBytes);
+                    produitPhotos.setProduit(produit);
+
+                    pps.saveProduitPhotos(produitPhotos);
+
+                    obj.add(produitPhotos);
                 }
             }
 
@@ -114,6 +110,7 @@ public class ProduitController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
+
 
     // CONTROLLEUR DE MODIFICATION DE PRODUIT
     @PutMapping("/update/{id}")
