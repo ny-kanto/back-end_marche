@@ -37,7 +37,7 @@ public class UtilisateurController {
     public ResponseEntity<APIResponse> signup(@RequestParam("nom") String nom, @RequestParam("prenom") String prenom, @RequestParam("pseudo") String pseudo,
             @RequestParam("email") String email, @RequestParam("password") String password,
             @RequestParam("date_naissance") Date dateNaissance, @RequestParam("code_postal") String codePostal,
-            @RequestParam("id_role") int idRole, @RequestParam("id_type_production") int idTypeProduction,
+            @RequestParam("id_role") int idRole, @RequestParam(name = "id_type_production", required = false) int idTypeProduction,
             @RequestParam("contact") String contact, @RequestParam("localisation") String localisation) {
 
         try {
