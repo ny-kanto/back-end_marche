@@ -45,4 +45,12 @@ public class Message {
     @ManyToOne
     @JoinColumn(name = "id_expediteur", referencedColumnName = "id")
     private Personne expediteur;
+    
+    public Message(String contenuMessage, Timestamp dateMessage, Conversation conversation, Personne expediteur) {
+        this.contenuMessage = contenuMessage;
+        this.dateMessage = dateMessage;
+        this.conversation = conversation;
+        this.expediteur = expediteur;
+    }
+
 }

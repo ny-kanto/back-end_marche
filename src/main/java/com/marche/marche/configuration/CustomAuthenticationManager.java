@@ -52,7 +52,7 @@ public class CustomAuthenticationManager implements AuthenticationManager {
 
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
         if (!passwordEncoder.matches(password, userDetails.getPassword())) {
-            throw new BadCredentialsException("Invalid password");
+            throw new BadCredentialsException("Mot de passe invalide");
         }
 
         // Construction d'une AuthenticationToken si l'authentification réussit

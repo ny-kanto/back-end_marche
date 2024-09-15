@@ -21,22 +21,35 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "panier")
+@Table(name = "commentaire")
 @SequenceGenerator(
-    name = "panier_seq", 
-    sequenceName = "panier_seq",
+    name = "commentaire_seq", 
+    sequenceName = "commentaire_seq", 
     allocationSize = 1
 )
-public class Panier {
+public class Commentaire {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "panier_seq")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "commentaire_seq")
     private int id;
 
     @ManyToOne
     @JoinColumn(name = "id_personne", referencedColumnName = "id")
     private Personne personne;
 
-    public Panier(Personne personne) {
+    @ManyToOne
+    @JoinColumn(name = "id_produit", referencedColumnName = "id")
+    private Produit produit;
+
+    @Column(name = "contenu_commentaire")
+    private String contenuCommentaire;
+
+    @Column(name = "date_commentaire")
+    private Timestamp dateCommentaire;
+
+    public Commentaire(Personne personne, Produit produit, String contenuCommentaire, Timestamp dateCommentaire) {
         this.personne = personne;
+        this.produit = produit;
+        this.contenuCommentaire = contenuCommentaire;
+        this.dateCommentaire = dateCommentaire;
     }
 }

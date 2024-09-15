@@ -81,7 +81,8 @@ public class SpringSecurityConfig {
                 .cors().and()
                 .authorizeRequests()
                 .requestMatchers("/rest/auth/**", "/user/signup", "/type-production/all").permitAll()
-                .requestMatchers("/produit/**").hasRole("USER_VENDEUR")
+                .requestMatchers("/produit/save", "/produit/all", "/produit/update", "/produit/get", "/produit/delete", "/stock/**", "/statistique/all").hasRole("USER_VENDEUR")
+                .requestMatchers("/produit/user-all", "/panier/**", "/produit/get-user", "/evaluation/**", "/commentaire/**").hasRole("USER_ACHETEUR")
                 .anyRequest().authenticated()
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -102,7 +103,7 @@ public class SpringSecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(Arrays.asList("https://ny-kanto.github.io"));
+        config.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
         config.setAllowedMethods(Arrays.asList("POST", "GET", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
         source.registerCorsConfiguration("/**", config);

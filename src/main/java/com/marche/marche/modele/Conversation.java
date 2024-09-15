@@ -36,4 +36,9 @@ public class Conversation {
     @ManyToOne
     @JoinColumn(name = "id_acheteur", referencedColumnName = "id")
     private Personne acheteur;
+
+    public Conversation(Personne vendeur, Personne acheteur) {
+        this.vendeur = vendeur;
+        this.acheteur = acheteur;
+    }
 }

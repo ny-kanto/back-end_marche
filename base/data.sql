@@ -39,6 +39,32 @@ INSERT INTO type_produit(id, nom) VALUES
 (nextval('type_produit_seq'), 'Produits agricoles'),
 (nextval('type_produit_seq'), 'Produits d''élevages');
 
+-- REGION
+INSERT INTO region(id, nom) VALUES
+(nextval('region_seq'), 'Analamanga'),
+(nextval('region_seq'), 'Bongolava'),
+(nextval('region_seq'), 'Itasy'),
+(nextval('region_seq'), 'Vakinankaratra'),
+(nextval('region_seq'), 'Diana'),
+(nextval('region_seq'), 'Sava'),
+(nextval('region_seq'), 'Amoron''i Mania'),
+(nextval('region_seq'), 'Atsimo Atsinanana'),
+(nextval('region_seq'), 'Fitovinany'),
+(nextval('region_seq'), 'Haute Matsiatra'),
+(nextval('region_seq'), 'Ihorombe'),
+(nextval('region_seq'), 'Vatovavy'),
+(nextval('region_seq'), 'Betsiboka'),
+(nextval('region_seq'), 'Boeny'),
+(nextval('region_seq'), 'Melaky'),
+(nextval('region_seq'), 'Sofia'),
+(nextval('region_seq'), 'Alaotra Mangoro'),
+(nextval('region_seq'), 'Analanjirofo'),
+(nextval('region_seq'), 'Atsinanana'),
+(nextval('region_seq'), 'Androy'),
+(nextval('region_seq'), 'Anosy'),
+(nextval('region_seq'), 'Atsimo Andrefana'),
+(nextval('region_seq'), 'Menabe');
+
 -- CATEGORIE
 INSERT INTO categorie(id, nom, id_type_produit) VALUES
 (nextval('categorie_seq'), 'Fruits et Légumes', 1),
@@ -57,34 +83,34 @@ INSERT INTO categorie(id, nom, id_type_produit) VALUES
 -- PRODUIT
 -- FRUITS ET LEGUMES
 INSERT INTO produit (id, nom, description, prix, min_commande, delais_livraison, id_categorie, id_unite, id_personne) VALUES
-(nextval('produit_seq'), 'Pommes', 'Des pommes fraîches et croquantes, parfaites pour une collation saine ou pour cuisiner des desserts savoureux. Cultivées localement pour une qualité optimale.', 2.5, 1, 3, 1, 1, 1), -- Kilogramme //
-(nextval('produit_seq'),'Oranges', 'Oranges juteuses, riches en vitamine C, idéales pour faire du jus frais ou pour une consommation quotidienne. Issues de cultures locales.', 3.0, 1, 3, 1, 1, 1), -- Kilogramme //
-(nextval('produit_seq'),'Tomates', 'Tomates rouges, mûres et gorgées de soleil, parfaites pour vos salades, sauces ou plats cuisinés. Produites localement pour une fraîcheur garantie.', 1.8, 1, 3, 1, 5, 1), -- Gramme //
-(nextval('produit_seq'),'Carottes', 'Carottes croquantes, riches en bêta-carotène, idéales pour les salades, les soupes ou comme collation saine. Cultivées avec soin localement.', 1.2, 1, 3, 1, 1, 1), -- Kilogramme //
-(nextval('produit_seq'),'Salades', 'Salades fraîches et croustillantes, parfaites pour accompagner tous vos repas. Produites localement pour garantir la qualité et la fraîcheur.', 1.5, 1, 3, 1, 3, 1); -- Pièce //
+(nextval('produit_seq'), 'Pommes', 'Description des pommes', 2.5, 1, 3, 1, 1, 1), -- Kilogramme
+(nextval('produit_seq'),'Oranges', 'Description des oranges', 3.0, 1, 3, 1, 1, 1), -- Kilogramme
+(nextval('produit_seq'),'Tomates', 'Description des tomates', 1.8, 1, 3, 1, 5, 1), -- Gramme
+(nextval('produit_seq'),'Carottes', 'Description des carottes', 1.2, 1, 3, 1, 1, 1), -- Kilogramme
+(nextval('produit_seq'),'Salades', 'Description des salades', 1.5, 1, 3, 1, 3, 1); -- Pièce
 
 -- CEREALES ET LEGUMINEUSES
 INSERT INTO produit (id, nom, description, prix, min_commande, delais_livraison, id_categorie, id_unite, id_personne) VALUES
-(nextval('produit_seq'),'Blé', 'Blé de haute qualité, idéal pour la production de farine et autres produits céréaliers. Cultivé de manière durable pour des rendements optimaux.', 1.0, 5, 7, 2, 8, 1), -- Tonne //
-(nextval('produit_seq'),'Maïs', 'Maïs jaune riche en nutriments, utilisé pour la production de farine, d''huile ou comme aliment pour animaux. Provenant de cultures locales.', 1.2, 5, 7, 2, 8, 1), -- Tonne //
-(nextval('produit_seq'),'Riz', 'Riz blanc de qualité supérieure, idéal pour tous vos plats traditionnels. Produit localement et cultivé dans le respect de l''environnement.', 2.0, 5, 7, 2, 8, 1), -- Tonne //
+(nextval('produit_seq'),'Blé', 'Description du blé', 1.0, 5, 7, 2, 8, 1), -- Tonne
+(nextval('produit_seq'),'Maïs', 'Description du maïs', 1.2, 5, 7, 2, 8, 1), -- Tonne
+(nextval('produit_seq'),'Riz', 'Description du riz', 2.0, 5, 7, 2, 8, 1), -- Tonne
 -- (nextval('produit_seq'),'Lentilles', 'Description des lentilles', 2.5, 5, 7, 2, 5, 1), -- Gramme
-(nextval('produit_seq'),'Pois chiches', 'Pois chiches nutritifs et riches en protéines, parfaits pour les plats végétariens et les salades. Cultivés dans des conditions optimales.', 2.8, 5, 7, 2, 5, 1); -- Gramme //
+(nextval('produit_seq'),'Pois chiches', 'Description des pois chiches', 2.8, 5, 7, 2, 5, 1); -- Gramme
 
 -- PLANTES ET HERBES AROMATIQUES
 INSERT INTO produit (id, nom, description, prix, min_commande, delais_livraison, id_categorie, id_unite, id_personne) VALUES
-(nextval('produit_seq'),'Basilic', 'Basilic frais, aux arômes intenses, parfait pour agrémenter vos plats méditerranéens et vos sauces. Cueilli localement pour une fraîcheur garantie.', 0.5, 1, 2, 3, 3, 1), -- Pièce //
-(nextval('produit_seq'),'Menthe', 'Menthe verte aux feuilles parfumées, idéale pour les tisanes, les desserts et les plats salés. Cultivée localement pour une qualité optimale.', 0.5, 1, 2, 3, 3, 1), -- Pièce //
-(nextval('produit_seq'),'Persil', 'Persil frais et aromatique, un incontournable pour assaisonner vos plats. Récolté localement pour conserver toute sa saveur.', 0.5, 1, 2, 3, 3, 1), -- Pièce //
+(nextval('produit_seq'),'Basilic', 'Description du basilic', 0.5, 1, 2, 3, 3, 1), -- Pièce
+(nextval('produit_seq'),'Menthe', 'Description de la menthe', 0.5, 1, 2, 3, 3, 1), -- Pièce
+(nextval('produit_seq'),'Persil', 'Description du persil', 0.5, 1, 2, 3, 3, 1), -- Pièce
 (nextval('produit_seq'),'Thym', 'Description du thym', 0.5, 1, 2, 3, 3, 1), -- Pièce
-(nextval('produit_seq'),'Lavande', 'Lavande parfumée, parfaite pour la décoration ou pour infuser vos tisanes et desserts. Produite localement avec soin.', 0.7, 1, 2, 3, 3, 1); -- Pièce //
+(nextval('produit_seq'),'Lavande', 'Description de la lavande', 0.7, 1, 2, 3, 3, 1); -- Pièce
 
 -- NOIX ET GRAINES
 INSERT INTO produit (id, nom, description, prix, min_commande, delais_livraison, id_categorie, id_unite, id_personne) VALUES
-(nextval('produit_seq'),'Amandes', 'Amandes croquantes et riches en nutriments, idéales pour vos collations ou pâtisseries. Issues de cultures locales pour une qualité supérieure.', 10.0, 1, 5, 4, 5, 1), -- Gramme //
+(nextval('produit_seq'),'Amandes', 'Description des amandes', 10.0, 1, 5, 4, 5, 1), -- Gramme
 (nextval('produit_seq'),'Noix', 'Description des noix', 9.0, 1, 5, 4, 5, 1), -- Gramme
-(nextval('produit_seq'),'Graines de tournesol', 'Graines de tournesol riches en vitamines, parfaites pour vos salades, pains ou à consommer seules. Cultivées avec soin.', 5.0, 1, 5, 4, 5, 1), -- Gramme //
-(nextval('produit_seq'),'Graines de lin', 'Graines de lin riches en oméga-3, idéales pour agrémenter vos salades ou vos plats. Provenant de cultures locales.', 6.0, 1, 5, 4, 5, 1); -- Gramme //
+(nextval('produit_seq'),'Graines de tournesol', 'Description des graines de tournesol', 5.0, 1, 5, 4, 5, 1), -- Gramme
+(nextval('produit_seq'),'Graines de lin', 'Description des graines de lin', 6.0, 1, 5, 4, 5, 1); -- Gramme
 
 -- Viande
 INSERT INTO produit (id, nom, description, prix, min_commande, delais_livraison, id_categorie, id_unite, id_personne) VALUES
@@ -104,8 +130,8 @@ INSERT INTO produit (id, nom, description, prix, min_commande, delais_livraison,
 
 -- OEUFS
 INSERT INTO produit (id, nom, description, prix, min_commande, delais_livraison, id_categorie, id_unite, id_personne) VALUES
-(nextval('produit_seq'),'Œufs de poule', 'Œufs de poule frais, produits localement, parfaits pour vos petits déjeuners ou pour cuisiner. Vendu par pack de 12.', 0.5, 12, 1, 7, 9, 1), -- Pack //
-(nextval('produit_seq'),'Œufs de caille', 'Œufs de caille délicats, riches en nutriments, parfaits pour des recettes raffinées. Disponible en pack de 24.', 1.0, 24, 1, 7, 9, 1); -- Pack //
+(nextval('produit_seq'),'Œufs de poule', 'Description des œufs de poule', 0.5, 12, 1, 7, 9, 1), -- Pack
+(nextval('produit_seq'),'Œufs de caille', 'Description des œufs de caille', 1.0, 24, 1, 7, 9, 1); -- Pack
 
 -- POISSONS ET FRUITS DE MER
 INSERT INTO produit (id, nom, description, prix, min_commande, delais_livraison, id_categorie, id_unite, id_personne) VALUES
@@ -119,3 +145,150 @@ INSERT INTO produit (id, nom, description, prix, min_commande, delais_livraison,
 (nextval('produit_seq'),'Miel', 'Description du miel', 8.0, 1, 3, 9, 2, 1), -- Litre
 (nextval('produit_seq'),'Cire d''abeille', 'Description de la cire d''abeille', 5.0, 1, 3, 9, 5, 1), -- Gramme
 (nextval('produit_seq'),'Propolis', 'Description de la propolis', 12.0, 1, 3, 9, 5, 1); -- Gramme
+
+
+INSERT INTO commande (id, adresse_livraison, date_commande, num_client, status_commande, id_personne) VALUES
+(nextval('commande_seq'), 'Antananarivo', '2024-09-01', 'C001', 11, 2),
+(nextval('commande_seq'), 'Fianarantsoa', '2024-09-02', 'C002', 1, 2),
+(nextval('commande_seq'), 'Mahajanga', '2024-09-03', 'C003', 11, 2),
+(nextval('commande_seq'), 'Toamasina', '2024-09-04', 'C004', 0, 2),
+(nextval('commande_seq'), 'Antsirabe', '2024-09-05', 'C005', 11, 2),
+(nextval('commande_seq'), 'Toliara', '2024-09-06', 'C006', 11, 2),
+(nextval('commande_seq'), 'Antananarivo', '2024-09-07', 'C007', 11, 2),
+(nextval('commande_seq'), 'Fianarantsoa', '2024-09-08', 'C008', 1, 2),
+(nextval('commande_seq'), 'Mahajanga', '2024-09-09', 'C009', 11, 2),
+(nextval('commande_seq'), 'Toamasina', '2024-09-10', 'C010', 11, 2);
+
+INSERT INTO commande_produit (id_commande, id_produit, prix_unitaire, quantite) VALUES
+(1, 1, 4500, 10), -- Pommes
+(1, 3, 3500, 20), -- Tomates
+(2, 5, 4000, 15), -- Salades
+(2, 8, 5000, 30), -- Riz
+(3, 11, 2000, 25), -- Menthe
+(3, 15, 4000, 5), -- Graines de tournesol
+(4, 17, 4000, 12), -- Œufs de poule
+(4, 19, 10000, 10), -- Bœuf
+(5, 22, 5000, 5), -- Agneau
+(5, 24, 1500, 50), -- Lait
+(6, 27, 2500, 30), -- Beurre
+(6, 29, 6000, 20), -- Poissons d'eau douce
+(7, 32, 1800, 10), -- Coquillages
+(7, 35, 5600, 8),  -- Propolis
+(8, 3, 3500, 25),  -- Tomates
+(9, 5, 4000, 10),  -- Salades
+(9, 17, 4000, 20), -- Œufs de poule
+(10, 8, 5000, 40), -- Riz
+(10, 33, 3000, 10); -- Miel
+
+INSERT INTO entree (id, date_entree, quantite, id_produit) VALUES
+(1, '2024-08-25', 100, 2),  -- Oranges
+(2, '2024-08-25', 50, 3),   -- Tomates
+(3, '2024-09-01', 150, 1),  -- Pommes
+(4, '2024-09-02', 75, 4),   -- Carottes
+(5, '2024-09-02', 200, 5),  -- Salades
+(6, '2024-09-03', 100, 8),  -- Riz
+(7, '2024-09-04', 90, 11),  -- Menthe
+(8, '2024-09-05', 120, 17), -- Œufs de poule
+(9, '2024-09-06', 50, 19),  -- Bœuf
+(10, '2024-09-06', 200, 24), -- Lait
+(11, '2024-09-07', 180, 27), -- Beurre
+(12, '2024-09-08', 250, 29), -- Poissons d'eau douce
+(13, '2024-09-09', 100, 32), -- Coquillages
+(14, '2024-09-09', 300, 3),  -- Tomates
+(15, '2024-09-10', 400, 5),  -- Salades
+(16, '2024-09-10', 100, 17), -- Œufs de poule
+(17, '2024-09-11', 200, 8),  -- Riz
+(18, '2024-09-11', 50, 19),  -- Bœuf
+(19, '2024-09-12', 100, 21), -- Poulet
+(20, '2024-09-12', 150, 33); -- Miel
+
+INSERT INTO sortie (id, date_sortie, quantite, id_produit) VALUES
+(1, '2024-09-01', 50, 1),  -- Pommes
+(2, '2024-09-02', 30, 3),  -- Tomates
+(3, '2024-09-03', 40, 5),  -- Salades
+(4, '2024-09-04', 60, 8),  -- Riz
+(5, '2024-09-05', 25, 11), -- Menthe
+(6, '2024-09-06', 20, 17), -- Œufs de poule
+(7, '2024-09-07', 50, 24), -- Lait
+(8, '2024-09-08', 20, 27), -- Beurre
+(9, '2024-09-09', 40, 29), -- Poissons d'eau douce
+(10, '2024-09-10', 10, 32); -- Coquillages
+
+
+UPDATE produit
+SET localisation = CASE
+    WHEN id = 1 THEN 'Antananarivo'
+    WHEN id = 2 THEN 'Antsirabe'
+    WHEN id = 3 THEN 'Miarinarivo'
+    WHEN id = 4 THEN 'Toamasina'
+    WHEN id = 5 THEN 'Fianarantsoa'
+    WHEN id = 6 THEN 'Tsiroanomandidy'
+    WHEN id = 7 THEN 'Ambatondrazaka'
+    WHEN id = 8 THEN 'Maevatanana'
+    WHEN id = 9 THEN 'Mahajanga'
+    WHEN id = 10 THEN 'Antsiranana'
+    WHEN id = 11 THEN 'Sambava'
+    WHEN id = 12 THEN 'Antsohihy'
+    WHEN id = 13 THEN 'Maintirano'
+    WHEN id = 14 THEN 'Morondava'
+    WHEN id = 15 THEN 'Fénérive Est'
+    WHEN id = 16 THEN 'Toliara'
+    WHEN id = 17 THEN 'Ambovombe'
+    WHEN id = 18 THEN 'Taolagnaro'
+    WHEN id = 19 THEN 'Mananjary'
+    WHEN id = 20 THEN 'Manakara'
+    WHEN id = 21 THEN 'Farafangana'
+    WHEN id = 22 THEN 'Ihosy'
+    WHEN id = 23 THEN 'Ambositra'
+    WHEN id = 24 THEN 'Betafo'
+    WHEN id = 25 THEN 'Antanifotsy'
+    WHEN id = 26 THEN 'Vatomandry'
+    WHEN id = 27 THEN 'Moramanga'
+    WHEN id = 28 THEN 'Ambanja'
+    WHEN id = 29 THEN 'Vohémar'
+    WHEN id = 30 THEN 'Belo sur Tsiribihina'
+    WHEN id = 31 THEN 'Morombe'
+    WHEN id = 32 THEN 'Beloha'
+    WHEN id = 33 THEN 'Ambohimahasoa'
+    WHEN id = 34 THEN 'Ifanadiana'
+    WHEN id = 35 THEN 'Vangaindrano'
+    ELSE localisation
+END,
+id_region = CASE
+    WHEN id = 1 THEN 1
+    WHEN id = 2 THEN 2
+    WHEN id = 3 THEN 3
+    WHEN id = 4 THEN 4
+    WHEN id = 5 THEN 5
+    WHEN id = 6 THEN 6
+    WHEN id = 7 THEN 7
+    WHEN id = 8 THEN 8
+    WHEN id = 9 THEN 9
+    WHEN id = 10 THEN 10
+    WHEN id = 11 THEN 11
+    WHEN id = 12 THEN 12
+    WHEN id = 13 THEN 13
+    WHEN id = 14 THEN 14
+    WHEN id = 15 THEN 15
+    WHEN id = 16 THEN 16
+    WHEN id = 17 THEN 17
+    WHEN id = 18 THEN 18
+    WHEN id = 19 THEN 19
+    WHEN id = 20 THEN 20
+    WHEN id = 21 THEN 21
+    WHEN id = 22 THEN 22
+    WHEN id = 23 THEN 23
+    WHEN id = 24 THEN 2
+    WHEN id = 25 THEN 2
+    WHEN id = 26 THEN 4
+    WHEN id = 27 THEN 4
+    WHEN id = 28 THEN 10
+    WHEN id = 29 THEN 11
+    WHEN id = 30 THEN 13
+    WHEN id = 31 THEN 14
+    WHEN id = 32 THEN 17
+    WHEN id = 33 THEN 19
+    WHEN id = 34 THEN 19
+    WHEN id = 35 THEN 21
+    ELSE id_region
+END;

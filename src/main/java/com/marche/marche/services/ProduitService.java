@@ -5,8 +5,10 @@ import org.springframework.stereotype.Service;
 
 import com.marche.marche.modele.Produit;
 import com.marche.marche.modele.ProduitPhotos;
+import com.marche.marche.modele.Region;
 import com.marche.marche.modele.Unite;
 import com.marche.marche.repository.ProduitRepository;
+import com.marche.marche.repository.RegionRepository;
 import com.marche.marche.repository.UniteRepository;
 import com.marche.marche.modele.Categorie;
 import com.marche.marche.repository.CategorieRepository;
@@ -36,6 +38,9 @@ public class ProduitService {
     private CategorieRepository cr;
 
     @Autowired
+    private RegionRepository rr;
+
+    @Autowired
     private PersonneRepository per;
 
     @Autowired
@@ -56,12 +61,17 @@ public class ProduitService {
         return pr.findById(id).get();
     }
 
+    public List<Produit> getAllProduitsByPersonne(Personne personne) {
+        return pr.findByPersonne(personne);
+    }
+
     public Produit updateProduit(int idProduit, Produit produit, Personne personne) {
         Produit existingProduit = pr.findById(idProduit)
                 .orElseThrow(() -> new IllegalArgumentException("Produit non trouvé avec l'ID : " + idProduit));
 
         if (!existingProduit.getPersonne().equals(personne)) {
-            throw new IllegalArgumentException("Le produit avec l'ID : " + idProduit + " n'appartient pas à la personne " + personne.getId());
+            throw new IllegalArgumentException(
+                    "Le produit avec l'ID : " + idProduit + " n'appartient pas à la personne " + personne.getId());
         }
 
         existingProduit.setNom(produit.getNom());
@@ -81,7 +91,8 @@ public class ProduitService {
         List<Produit> produit = new ArrayList<>();
         try {
             Connection c = dataSource.getConnection();
-            String sql = "SELECT * FROM produit WHERE id_personne = ? ORDER BY " + column + " " + ((sort % 2) == 1 ? "ASC" : "DESC")
+            String sql = "SELECT * FROM produit p WHERE id_personne = ? ORDER BY " + column + " "
+                    + ((sort % 2) == 1 ? "ASC" : "DESC")
                     + " LIMIT ? OFFSET ?";
 
             PreparedStatement ps = c.prepareStatement(sql);
@@ -93,18 +104,23 @@ public class ProduitService {
             Produit p;
             Categorie cat;
             Unite u;
+            Region r;
             Personne personne = per.findById(idPersonne).get();
             while (rs.next()) {
                 p = new Produit();
                 cat = cr.findById(rs.getInt("id_categorie")).get();
                 u = ur.findById(rs.getInt("id_unite")).get();
+                r = rr.findById(rs.getInt("id_region")).get();
                 p.setId(rs.getInt("id"));
                 p.setNom(rs.getString("nom"));
                 p.setDescription(rs.getString("description"));
                 p.setPrix(rs.getDouble("prix"));
                 p.setMinCommande(rs.getDouble("min_commande"));
                 p.setDelaisLivraison(rs.getInt("delais_livraison"));
+                p.setDateAjout(rs.getTimestamp("date_ajout"));
+                p.setLocalisation(rs.getString("localisation"));
                 p.setCategorie(cat);
+                p.setRegion(r);
                 p.setUnite(u);
                 p.setPersonne(personne);
                 produit.add(p);
@@ -120,7 +136,8 @@ public class ProduitService {
         return produit;
     }
 
-    public String sql(String nom, double prixMin, double prixMax, int idUnite, int idCategorie, int idTypeProduit) {
+    public String sql(String nom, double prixMin, double prixMax, int idUnite, int idCategorie, int idTypeProduit,
+            int noPage, int nbParPage, String column, int sort) {
         String sql = "SELECT * FROM produit p JOIN categorie c ON c.id = p.id_categorie WHERE 1 = 1 AND id_personne = ? ";
 
         if (nom != null && !nom.isEmpty()) {
@@ -147,77 +164,162 @@ public class ProduitService {
             sql += "AND c.id_type_produit = ? ";
         }
 
+        sql += "ORDER BY " + column + " " + ((sort % 2) == 1 ? "ASC" : "DESC") + " LIMIT ? OFFSET ? ";
+
         return sql;
     }
 
-    public List<Produit> getProduitFiltre(int idPersonne, String nom, double prixMin, double prixMax, int idUnite, int idCategorie, int idTypeProduit) {
+    public List<Produit> getProduitFiltre(int idPersonne, String nom, double prixMin, double prixMax, int idUnite,
+            int idCategorie, int idTypeProduit, int noPage, int nbParPage, String column, int sort) {
         List<Produit> produit = new ArrayList<>();
         try {
             Connection c = dataSource.getConnection();
-            String sql = sql(nom, prixMin, prixMax, idUnite, idCategorie, idTypeProduit);
-    
+            String sql = sql(nom, prixMin, prixMax, idUnite, idCategorie, idTypeProduit, noPage, nbParPage, column,
+                    sort);
+
             PreparedStatement ps = c.prepareStatement(sql);
             ps.setInt(1, idPersonne);
             int parameterIndex = 2;
-    
+
             if (nom != null && !nom.isEmpty()) {
                 ps.setString(parameterIndex, "%" + nom.toLowerCase() + "%");
                 parameterIndex++;
             }
-    
+
             if (prixMin > 0.0) {
                 ps.setDouble(parameterIndex, prixMin);
                 parameterIndex++;
             }
-    
+
             if (prixMax > 0.0) {
                 ps.setDouble(parameterIndex, prixMax);
                 parameterIndex++;
             }
-    
+
             if (idUnite > 0) {
                 ps.setInt(parameterIndex, idUnite);
                 parameterIndex++;
             }
-    
+
             if (idCategorie > 0) {
                 ps.setInt(parameterIndex, idCategorie);
                 parameterIndex++;
             }
-    
+
             if (idTypeProduit > 0) {
                 ps.setInt(parameterIndex, idTypeProduit);
                 parameterIndex++;
             }
-    
+
+            ps.setInt(parameterIndex, nbParPage);
+            parameterIndex++;
+
+            ps.setInt(parameterIndex, (noPage - 1) * nbParPage);
+            parameterIndex++;
+
             ResultSet rs = ps.executeQuery();
-    
+            Categorie cat;
+            Unite u;
+            Region r;
             while (rs.next()) {
                 Produit p = new Produit();
-                Categorie cat = cr.findById(rs.getInt("id_categorie")).get();
-                Unite u = ur.findById(rs.getInt("id_unite")).get();
+                cat = cr.findById(rs.getInt("id_categorie")).get();
+                u = ur.findById(rs.getInt("id_unite")).get();
+                r = rr.findById(rs.getInt("id_region")).get();
                 p.setId(rs.getInt("id"));
                 p.setNom(rs.getString("nom"));
                 p.setDescription(rs.getString("description"));
                 p.setPrix(rs.getDouble("prix"));
                 p.setMinCommande(rs.getDouble("min_commande"));
+                p.setDateAjout(rs.getTimestamp("date_ajout"));
                 p.setDelaisLivraison(rs.getInt("delais_livraison"));
+                p.setLocalisation(rs.getString("localisation"));
                 p.setCategorie(cat);
+                p.setRegion(r);
                 p.setUnite(u);
                 p.setPersonne(per.findById(idPersonne).get());
                 produit.add(p);
             }
-    
+
             rs.close();
             ps.close();
             c.close();
-    
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return produit;
     }
-    
+
+    public int countProduitFiltre(int idPersonne, String nom, double prixMin, double prixMax, int idUnite,
+            int idCategorie, int idTypeProduit) {
+        int countProduit = 0;
+        try {
+            Connection c = dataSource.getConnection();
+            String sql = "SELECT COUNT(p.id) as countProduit FROM produit p JOIN categorie c ON c.id = p.id_categorie WHERE 1 = 1 AND id_personne = ?";
+
+            if (nom != null && !nom.isEmpty()) {
+                sql += " AND LOWER(p.nom) LIKE ?";
+            }
+            if (prixMin > 0.0) {
+                sql += " AND p.prix >= ?";
+            }
+            if (prixMax > 0.0) {
+                sql += " AND p.prix <= ?";
+            }
+            if (idUnite > 0) {
+                sql += " AND p.id_unite = ?";
+            }
+            if (idCategorie > 0) {
+                sql += " AND p.id_categorie = ?";
+            }
+            if (idTypeProduit > 0) {
+                sql += " AND c.id_type_produit = ?";
+            }
+
+            PreparedStatement ps = c.prepareStatement(sql);
+            ps.setInt(1, idPersonne);
+
+            int parameterIndex = 2;
+            if (nom != null && !nom.isEmpty()) {
+                ps.setString(parameterIndex, "%" + nom.toLowerCase() + "%");
+                parameterIndex++;
+            }
+            if (prixMin > 0.0) {
+                ps.setDouble(parameterIndex, prixMin);
+                parameterIndex++;
+            }
+            if (prixMax > 0.0) {
+                ps.setDouble(parameterIndex, prixMax);
+                parameterIndex++;
+            }
+            if (idUnite > 0) {
+                ps.setInt(parameterIndex, idUnite);
+                parameterIndex++;
+            }
+            if (idCategorie > 0) {
+                ps.setInt(parameterIndex, idCategorie);
+                parameterIndex++;
+            }
+            if (idTypeProduit > 0) {
+                ps.setInt(parameterIndex, idTypeProduit);
+                parameterIndex++;
+            }
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                countProduit = rs.getInt("countProduit");
+            }
+
+            rs.close();
+            ps.close();
+            c.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return countProduit;
+    }
+
     public int countProduit() {
         int countProduit = 0;
         try {
@@ -242,18 +344,298 @@ public class ProduitService {
     }
 
     public void deleteProduit(int idProduit, Personne personne) {
-    Optional<Produit> existingProduit = pr.findById(idProduit);
-    List<ProduitPhotos> pp = ppr.findByProduit(existingProduit.get());
+        Optional<Produit> existingProduit = pr.findById(idProduit);
+        List<ProduitPhotos> pp = ppr.findByProduit(existingProduit.get());
 
-    for (ProduitPhotos p : pp) {
-        ppr.delete(p);
-    }
-    
-    if (existingProduit.isPresent() && existingProduit.get().getPersonne().equals(personne)) {
-        pr.delete(existingProduit.get());
-    } else {
-        throw new IllegalArgumentException("Produit de la personne " + personne.getId() + " non trouvé avec l'ID : " + idProduit);
-    }
-}
+        for (ProduitPhotos p : pp) {
+            ppr.delete(p);
+        }
 
+        if (existingProduit.isPresent() && existingProduit.get().getPersonne().equals(personne)) {
+            pr.delete(existingProduit.get());
+        } else {
+            throw new IllegalArgumentException(
+                    "Produit de la personne " + personne.getId() + " non trouvé avec l'ID : " + idProduit);
+        }
+    }
+
+    public List<Produit> getProduitUserPerPage(int noPage, int nbParPage, String column, int sort) {
+        List<Produit> produit = new ArrayList<>();
+        try {
+            Connection c = dataSource.getConnection();
+            String sql = "SELECT * FROM v_produit_note p ORDER BY " + column + " " + ((sort % 2) == 1 ? "ASC" : "DESC")
+                    + " LIMIT ? OFFSET ?";
+
+            System.out.println("sql : " + sql);
+            PreparedStatement ps = c.prepareStatement(sql);
+            ps.setInt(1, nbParPage);
+            ps.setInt(2, (noPage - 1) * nbParPage);
+            System.out.println("sql : " + ps);
+            ResultSet rs = ps.executeQuery();
+
+            Produit p;
+            Categorie cat;
+            Unite u;
+            Personne personne;
+            Region r;
+            while (rs.next()) {
+                p = new Produit();
+                cat = cr.findById(rs.getInt("id_categorie")).get();
+                personne = per.findById(rs.getInt("id_personne")).get();
+                u = ur.findById(rs.getInt("id_unite")).get();
+                r = rr.findById(rs.getInt("id_region")).get();
+                p.setId(rs.getInt("id_produit"));
+                p.setNom(rs.getString("nom_produit"));
+                p.setDescription(rs.getString("description_produit"));
+                p.setPrix(rs.getDouble("prix_produit"));
+                p.setMinCommande(rs.getDouble("min_commande_produit"));
+                p.setDateAjout(rs.getTimestamp("date_ajout_produit"));
+                p.setDelaisLivraison(rs.getInt("delais_livraison_produit"));
+                p.setLocalisation(rs.getString("localisation_produit"));
+                p.setCategorie(cat);
+                p.setRegion(r);
+                p.setUnite(u);
+                p.setPersonne(personne);
+                p.setAverageRating(rs.getDouble("note_produit"));
+                produit.add(p);
+            }
+
+            rs.close();
+            ps.close();
+            c.close();
+
+        } catch (SQLException p) {
+            p.printStackTrace();
+        }
+        return produit;
+    }
+
+    public String sqlUser(String nom, int idLocalisation, int idTypeProduction, int disponibilite, double prixMin,
+            double prixMax, int idCategorie, int idTypeProduit, int noPage, int nbParPage, String column, int sort) {
+        String sql = "SELECT * FROM v_produit_note p JOIN categorie c ON c.id = p.id_categorie JOIN personne pe ON pe.id = p.id_personne WHERE 1 = 1 ";
+
+        if (nom != null && !nom.isEmpty()) {
+            sql += "AND LOWER(p.nom_produit) LIKE ? ";
+        }
+
+        if (idLocalisation > 0) {
+            sql += "AND p.id_region = ? ";
+        }
+
+        if (idTypeProduction > 0) {
+            sql += "AND pe.id_type_production = ? ";
+        }
+
+        if (prixMin > 0.0) {
+            sql += "AND p.prix_produit >= ? ";
+        }
+
+        if (prixMax > 0.0) {
+            sql += "AND p.prix_produit <= ? ";
+        }
+
+        if (idCategorie > 0) {
+            sql += "AND p.id_categorie = ? ";
+        }
+
+        if (idTypeProduit > 0) {
+            sql += "AND c.id_type_produit = ? ";
+        }
+
+        sql += "ORDER BY " + column + " " + ((sort % 2) == 1 ? "ASC" : "DESC") + " LIMIT ? OFFSET ? ";
+
+        return sql;
+    }
+
+    public List<Produit> getProduitUserFiltre(String nom, int idLocalisation, int idTypeProduction, int disponibilite,
+            double prixMin, double prixMax, int idCategorie, int idTypeProduit, int noPage, int nbParPage,
+            String column, int sort) {
+        List<Produit> produit = new ArrayList<>();
+        try {
+            Connection c = dataSource.getConnection();
+            String sql = sqlUser(nom, idLocalisation, idTypeProduction, disponibilite, prixMin, prixMax, idCategorie,
+                    idTypeProduit, noPage, nbParPage, column, sort);
+
+            System.out.println("sql : " + sql);
+            PreparedStatement ps = c.prepareStatement(sql);
+            int parameterIndex = 1;
+
+            if (nom != null && !nom.isEmpty()) {
+                ps.setString(parameterIndex, "%" + nom.toLowerCase() + "%");
+                parameterIndex++;
+            }
+
+            if (idLocalisation > 0) {
+                ps.setInt(parameterIndex, idLocalisation);
+                parameterIndex++;
+            }
+
+            if (idTypeProduction > 0) {
+                ps.setInt(parameterIndex, idTypeProduction);
+                parameterIndex++;
+            }
+
+            if (prixMin > 0.0) {
+                ps.setDouble(parameterIndex, prixMin);
+                parameterIndex++;
+            }
+
+            if (prixMax > 0.0) {
+                ps.setDouble(parameterIndex, prixMax);
+                parameterIndex++;
+            }
+
+            if (idCategorie > 0) {
+                ps.setInt(parameterIndex, idCategorie);
+                parameterIndex++;
+            }
+
+            if (idTypeProduit > 0) {
+                ps.setInt(parameterIndex, idTypeProduit);
+                parameterIndex++;
+            }
+
+            ps.setInt(parameterIndex, nbParPage);
+            parameterIndex++;
+
+            ps.setInt(parameterIndex, (noPage - 1) * nbParPage);
+            parameterIndex++;
+
+            ResultSet rs = ps.executeQuery();
+
+            Categorie cat;
+            Unite u;
+            Produit p;
+            Personne personne;
+            Region r;
+            while (rs.next()) {
+                p = new Produit();
+                cat = cr.findById(rs.getInt("id_categorie")).get();
+                personne = per.findById(rs.getInt("id_personne")).get();
+                u = ur.findById(rs.getInt("id_unite")).get();
+                r = rr.findById(rs.getInt("id_region")).get();
+                p.setId(rs.getInt("id_produit"));
+                p.setNom(rs.getString("nom_produit"));
+                p.setDescription(rs.getString("description_produit"));
+                p.setPrix(rs.getDouble("prix_produit"));
+                p.setMinCommande(rs.getDouble("min_commande_produit"));
+                p.setDateAjout(rs.getTimestamp("date_ajout_produit"));
+                p.setDelaisLivraison(rs.getInt("delais_livraison_produit"));
+                p.setLocalisation(rs.getString("localisation_produit"));
+                p.setCategorie(cat);
+                p.setRegion(r);
+                p.setUnite(u);
+                p.setPersonne(personne);
+                p.setAverageRating(rs.getDouble("note_produit"));
+                produit.add(p);
+            }
+
+            rs.close();
+            ps.close();
+            c.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return produit;
+    }
+
+    public int countProduitFiltreUser(String nom, int idLocalisation, int idTypeProduction, int disponibilite,
+            double prixMin, double prixMax, int idCategorie, int idTypeProduit) {
+        int count = 0;
+        try {
+            Connection c = dataSource.getConnection();
+            String sql = "SELECT COUNT(*) FROM v_produit_note p JOIN categorie c ON c.id = p.id_categorie " +
+                    "JOIN personne pe ON pe.id = p.id_personne WHERE 1 = 1 ";
+
+            if (nom != null && !nom.isEmpty()) {
+                sql += "AND LOWER(p.nom_produit) LIKE ? ";
+            }
+
+            if (idLocalisation > 0) {
+                sql += "AND p.id_region = ? ";
+            }
+
+            if (idTypeProduction > 0) {
+                sql += "AND pe.id_type_production = ? ";
+            }
+
+            if (prixMin > 0.0) {
+                sql += "AND p.prix_produit >= ? ";
+            }
+
+            if (prixMax > 0.0) {
+                sql += "AND p.prix_produit <= ? ";
+            }
+
+            if (idCategorie > 0) {
+                sql += "AND p.id_categorie = ? ";
+            }
+
+            if (idTypeProduit > 0) {
+                sql += "AND c.id_type_produit = ? ";
+            }
+
+            PreparedStatement ps = c.prepareStatement(sql);
+            int parameterIndex = 1;
+
+            if (nom != null && !nom.isEmpty()) {
+                ps.setString(parameterIndex, "%" + nom.toLowerCase() + "%");
+                parameterIndex++;
+            }
+
+            if (idLocalisation > 0) {
+                ps.setInt(parameterIndex, idLocalisation);
+                parameterIndex++;
+            }
+
+            if (idTypeProduction > 0) {
+                ps.setInt(parameterIndex, idTypeProduction);
+                parameterIndex++;
+            }
+
+            if (prixMin > 0.0) {
+                ps.setDouble(parameterIndex, prixMin);
+                parameterIndex++;
+            }
+
+            if (prixMax > 0.0) {
+                ps.setDouble(parameterIndex, prixMax);
+                parameterIndex++;
+            }
+
+            if (idCategorie > 0) {
+                ps.setInt(parameterIndex, idCategorie);
+                parameterIndex++;
+            }
+
+            if (idTypeProduit > 0) {
+                ps.setInt(parameterIndex, idTypeProduit);
+                parameterIndex++;
+            }
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+
+            rs.close();
+            ps.close();
+            c.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return count;
+    }
+
+    public double produitPrixMin() {
+        return pr.produitMinPrice();
+    }
+
+    public double produitPrixMax() {
+        return pr.produitMaxPrice();
+    }
 }

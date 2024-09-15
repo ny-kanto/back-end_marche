@@ -13,19 +13,15 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProduitPanierId implements Serializable {
-
-    private Long produit;
-    private Long panier;
+    private int produit;
+    private int panier;
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
         ProduitPanierId that = (ProduitPanierId) o;
-        return Objects.equals(produit, that.produit) &&
-                Objects.equals(panier, that.panier);
+        return Objects.equals(produit, that.produit) && Objects.equals(panier, that.panier);
     }
 
     @Override

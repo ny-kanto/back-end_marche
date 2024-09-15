@@ -1,5 +1,7 @@
 package com.marche.marche.modele;
 
+import java.sql.Timestamp;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -9,6 +11,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
@@ -54,8 +57,26 @@ public class Produit {
     @JoinColumn(name = "id_unite", referencedColumnName = "id")
     private Unite unite;
 
+    @Column(name = "date_ajout")
+    private Timestamp dateAjout;
+
+    private String localisation;
+
+    @ManyToOne
+    @JoinColumn(name = "id_region", referencedColumnName = "id")
+    private Region region;
+
+    @Transient
+    private double averageRating;
+
+    @Transient
+    private double totalCount;
+
+    @Transient
+    private boolean isNew;
+
     public Produit(String nom, String description, double prix, double minCommande, int delaisLivraison,
-            Categorie categorie, Personne personne, Unite unite) {
+            Categorie categorie, Personne personne, Unite unite, Timestamp dateAjout, String localisation, Region region) {
         this.nom = nom;
         this.description = description;
         this.prix = prix;
@@ -64,5 +85,8 @@ public class Produit {
         this.categorie = categorie;
         this.personne = personne;
         this.unite = unite;
+        this.dateAjout = dateAjout;
+        this.localisation = localisation;
+        this.region = region;
     }
 }

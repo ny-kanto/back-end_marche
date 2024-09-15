@@ -34,11 +34,5 @@ public class Evaluation {
     @JoinColumn(name = "id_produit", referencedColumnName = "id")
     private Produit produit;
 
-    private double note;
-
-    @Column(name = "contenu_commentaire")
-    private String contenuCommentaire;
-
-    @Column(name = "date_commentaire")
-    private Timestamp dateCommentaire;
+    private int note;
 }

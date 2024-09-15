@@ -32,7 +32,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Utilisateur user = dbUserRepository.findByEmail(username);
         if (user == null) {
-            throw new UsernameNotFoundException("No user found with email");
+            throw new UsernameNotFoundException("Aucun utilisateur qui correspond à l'email");
         }
         System.out.println(user.getEmail());
         List<String> roles = new ArrayList<>();

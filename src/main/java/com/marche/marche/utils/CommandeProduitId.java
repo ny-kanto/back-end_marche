@@ -14,16 +14,17 @@ import lombok.Setter;
 @AllArgsConstructor
 public class CommandeProduitId implements Serializable {
 
-    private Long commande;
-    private Long produit;
+    private int commande;
+    private int produit;
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         CommandeProduitId that = (CommandeProduitId) o;
-        return Objects.equals(commande, that.commande) &&
-               Objects.equals(produit, that.produit);
+        return Objects.equals(commande, that.commande) && Objects.equals(produit, that.produit);
     }
 
     @Override

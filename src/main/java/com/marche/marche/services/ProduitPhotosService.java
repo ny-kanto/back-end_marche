@@ -18,8 +18,17 @@ public class ProduitPhotosService {
     public ProduitPhotos saveProduitPhotos(ProduitPhotos produitPhotos) {
         return produitPhotosRepository.save(produitPhotos);
     }
-
     public List<ProduitPhotos> getProduitPhotosByProduit(Produit produit) {
         return produitPhotosRepository.findByProduit(produit);
     }
+
+    public ProduitPhotos getOneProduitPhotosByProduit(Produit produit) {
+        List<ProduitPhotos> photos = produitPhotosRepository.findByProduit(produit);
+        
+        if (photos != null && !photos.isEmpty()) {
+            return photos.get(0);
+        }
+
+        return null;
+    }    
 }

@@ -1,6 +1,6 @@
 package com.marche.marche.modele;
 
-import java.sql.Timestamp;
+import java.sql.Date;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -28,6 +28,7 @@ import lombok.Setter;
     allocationSize = 1
 )
 public class Entree {
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "entree_seq")
     private int id;
@@ -36,9 +37,15 @@ public class Entree {
     private double quantite;
 
     @Column(name = "date_entree")
-    private Timestamp dateEntree;
+    private Date dateEntree;
 
     @ManyToOne
     @JoinColumn(name = "id_produit", referencedColumnName = "id")
     private Produit produit;
+
+    public Entree(double quantite, Date dateEntree, Produit produit) {
+        this.quantite = quantite;
+        this.dateEntree = dateEntree;
+        this.produit = produit;
+    }
 }
