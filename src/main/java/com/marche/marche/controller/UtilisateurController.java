@@ -1,6 +1,8 @@
 package com.marche.marche.controller;
 
 import java.sql.Date;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -8,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.marche.marche.api.APIResponse;
+import com.marche.marche.authentification.JwtUtil;
+import com.marche.marche.modele.Panier;
 import com.marche.marche.modele.Personne;
 import com.marche.marche.modele.Role;
 import com.marche.marche.modele.TypeProduction;
@@ -16,6 +20,8 @@ import com.marche.marche.services.PersonneService;
 import com.marche.marche.services.RoleService;
 import com.marche.marche.services.TypeProductionService;
 import com.marche.marche.services.UtilisateurService;
+
+import io.jsonwebtoken.Claims;
 
 @RestController
 @RequestMapping("/user")
@@ -32,6 +38,9 @@ public class UtilisateurController {
 
     @Autowired
     private TypeProductionService tps;
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @PostMapping("/signup")
     public ResponseEntity<APIResponse> signup(@RequestParam("nom") String nom, @RequestParam("prenom") String prenom, @RequestParam("pseudo") String pseudo,
@@ -57,6 +66,32 @@ public class UtilisateurController {
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Erreur message : " + e.getMessage());
+            APIResponse response = new APIResponse(e.getMessage(), null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @GetMapping("/info")
+    public ResponseEntity<APIResponse> getCountPanier(
+            @RequestHeader(name = "Authorization") String authorizationHeader) {
+        try {
+            int idUtilisateur = 0;
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                String token = authorizationHeader.substring(7);
+                Claims claims = jwtUtil.parseJwtClaims(token);
+                idUtilisateur = JwtUtil.getUserId(claims);
+            }
+
+            List<Object> obj = new ArrayList<>();
+            Utilisateur u = us.getUtilisateur(idUtilisateur);
+            Personne p = ps.getPersonneByUtilisateur(u);
+            
+            obj.add(p);
+
+            APIResponse api = new APIResponse(null, obj);
+            return ResponseEntity.ok(api);
+        } catch (Exception e) {
+            e.printStackTrace();
             APIResponse response = new APIResponse(e.getMessage(), null);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }

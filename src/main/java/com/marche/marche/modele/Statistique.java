@@ -42,7 +42,7 @@ public class Statistique {
         } else if (mois == 7) {
             return "Juillet";
         } else if (mois == 8) {
-            return "Aout";
+            return "Août";
         } else if (mois == 9) {
             return "Septembre";
         } else if (mois == 10) {

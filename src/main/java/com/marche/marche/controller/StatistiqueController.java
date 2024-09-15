@@ -61,6 +61,7 @@ public class StatistiqueController {
             List<Object> obj = new ArrayList<>();
             Utilisateur u = us.getUtilisateur(idUtilisateur);
             Personne p = pes.getPersonneByUtilisateur(u);
+            List<Produit> produits = ps.getAllProduitsByPersonne(p);
             Produit produit;
             List<Statistique> statistiques = new ArrayList<>();
             if (idProduit == 0) {
@@ -71,6 +72,7 @@ public class StatistiqueController {
             }
 
             obj.add(statistiques);
+            obj.add(produits);
             APIResponse api = new APIResponse(null, obj);
             return ResponseEntity.ok(api);
         } catch (Exception e) {

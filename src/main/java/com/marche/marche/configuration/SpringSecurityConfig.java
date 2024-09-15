@@ -80,7 +80,7 @@ public class SpringSecurityConfig {
         http.csrf().disable()
                 .cors().and()
                 .authorizeRequests()
-                .requestMatchers("/rest/auth/**", "/user/signup", "/type-production/all").permitAll()
+                .requestMatchers("/rest/auth/**", "/user/signup", "/type-production/all", "/user/info").permitAll()
                 .requestMatchers("/produit/save", "/produit/all", "/produit/update", "/produit/get", "/produit/delete", "/stock/**", "/statistique/all").hasRole("USER_VENDEUR")
                 .requestMatchers("/produit/user-all", "/panier/**", "/produit/get-user", "/evaluation/**", "/commentaire/**").hasRole("USER_ACHETEUR")
                 .anyRequest().authenticated()
