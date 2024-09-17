@@ -64,6 +64,7 @@ public class StatistiqueController {
             List<Produit> produits = ps.getAllProduitsByPersonne(p);
             Produit produit;
             List<Statistique> statistiques = new ArrayList<>();
+            List<Integer> dateAnnee = ss.getDateCommandeAnnee(p);
             if (idProduit == 0) {
                 statistiques = ss.getStatistiquesByVendeur(p, annee);
             } else {
@@ -73,6 +74,7 @@ public class StatistiqueController {
 
             obj.add(statistiques);
             obj.add(produits);
+            obj.add(dateAnnee);
             APIResponse api = new APIResponse(null, obj);
             return ResponseEntity.ok(api);
         } catch (Exception e) {

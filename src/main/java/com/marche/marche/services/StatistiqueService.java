@@ -162,4 +162,60 @@ public class StatistiqueService {
         }
         return statistiques;
     }
+
+    public List<Integer> getDateCommandeAnnee(Personne personne) {
+        List<Integer> dateAnnee = new ArrayList<>();
+        try {
+            Connection c = dataSource.getConnection();
+            String sql = "WITH ANNEE_DISTINCTE AS (\r\n" + //
+                                "    SELECT\r\n" + //
+                                "        DISTINCT EXTRACT(YEAR FROM DATE_COMMANDE) AS ANNEE\r\n" + //
+                                "    FROM\r\n" + //
+                                "        COMMANDE\r\n" + //
+                                "), MOIS_ANNEE AS (\r\n" + //
+                                "    SELECT\r\n" + //
+                                "        GENERATE_SERIES(1, 12) AS MOIS,\r\n" + //
+                                "        ANNEE\r\n" + //
+                                "    FROM\r\n" + //
+                                "        ANNEE_DISTINCTE\r\n" + //
+                                ")\r\n" + //
+                                "SELECT\r\n" + //
+                                "    DISTINCT(MA.ANNEE) AS ANNEE\r\n" + //
+                                "FROM\r\n" + //
+                                "    MOIS_ANNEE       MA\r\n" + //
+                                "    LEFT JOIN COMMANDE C\r\n" + //
+                                "    ON EXTRACT(YEAR FROM C.DATE_COMMANDE) = MA.ANNEE\r\n" + //
+                                "    LEFT JOIN COMMANDE_PRODUIT CP\r\n" + //
+                                "    ON CP.ID_COMMANDE = C.ID\r\n" + //
+                                "    LEFT JOIN PRODUIT P\r\n" + //
+                                "    ON CP.ID_PRODUIT = P.ID\r\n" + //
+                                "WHERE\r\n" + //
+                                "    C.STATUS_COMMANDE >= 1\r\n" + //
+                                "    AND P.ID_PERSONNE = ?\r\n" + //
+                                "    OR C.ID IS NULL\r\n" + //
+                                "GROUP BY\r\n" + //
+                                "    MA.ANNEE\r\n" + //
+                                "ORDER BY\r\n" + //
+                                "    MA.ANNEE;";
+
+            PreparedStatement ps = c.prepareStatement(sql);
+            ps.setInt(1, personne.getId());
+            ResultSet rs = ps.executeQuery();
+
+            int annee = 0;
+
+            while (rs.next()) {
+                annee = rs.getInt("annee");
+                dateAnnee.add(annee);
+            }
+
+            rs.close();
+            ps.close();
+            c.close();
+
+        } catch (SQLException p) {
+            p.printStackTrace();
+        }
+        return dateAnnee;
+    }
 }
