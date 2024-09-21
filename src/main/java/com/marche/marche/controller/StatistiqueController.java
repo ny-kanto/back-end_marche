@@ -1,5 +1,6 @@
 package com.marche.marche.controller;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,13 +50,17 @@ public class StatistiqueController {
     @GetMapping("/all")
     public ResponseEntity<APIResponse> getAll(@RequestHeader(name = "Authorization") String authorizationHeader,
             @RequestParam(defaultValue = "0") int idProduit,
-            @RequestParam(defaultValue = "2024") int annee) {
+            @RequestParam(defaultValue = "0") int annee) {
         try {
             int idUtilisateur = 0;
             if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
                 String token = authorizationHeader.substring(7);
                 Claims claims = jwtUtil.parseJwtClaims(token);
                 idUtilisateur = JwtUtil.getUserId(claims);
+            } 
+
+            if (annee == 0) {
+                annee = LocalDate.now().getYear();
             }
 
             List<Object> obj = new ArrayList<>();
@@ -65,10 +70,15 @@ public class StatistiqueController {
             Produit produit;
             List<Statistique> statistiques = new ArrayList<>();
             List<Integer> dateAnnee = ss.getDateCommandeAnnee(p);
+
+            System.out.println("annee : " + annee);
+            System.out.println("personne : " + p.getNom());
             if (idProduit == 0) {
+                System.out.println("produit 0");
                 statistiques = ss.getStatistiquesByVendeur(p, annee);
             } else {
                 produit = ps.getProduit(idProduit);
+                System.out.println("produit : " + produit.getId());
                 statistiques = ss.getStatistiquesByProduitByAnnee(produit, annee);
             }
 

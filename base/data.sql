@@ -157,62 +157,109 @@ INSERT INTO commande (id, adresse_livraison, date_commande, num_client, status_c
 (nextval('commande_seq'), 'Antananarivo', '2024-09-07', 'C007', 11, 2),
 (nextval('commande_seq'), 'Fianarantsoa', '2024-09-08', 'C008', 1, 2),
 (nextval('commande_seq'), 'Mahajanga', '2024-09-09', 'C009', 11, 2),
-(nextval('commande_seq'), 'Toamasina', '2024-09-10', 'C010', 11, 2);
+(nextval('commande_seq'), 'Toamasina', '2024-09-10', 'C010', 11, 2),
+(nextval('commande_seq'), 'Antananarivo', '2023-01-15', 'C011', 11, 2),
+(nextval('commande_seq'), 'Fianarantsoa', '2023-02-20', 'C012', 1, 2),
+(nextval('commande_seq'), 'Mahajanga', '2023-03-25', 'C013', 11, 2),
+(nextval('commande_seq'), 'Toamasina', '2023-04-05', 'C014', 0, 2),
+(nextval('commande_seq'), 'Antsirabe', '2022-05-10', 'C015', 11, 2),
+(nextval('commande_seq'), 'Toliara', '2022-06-22', 'C016', 11, 2),
+(nextval('commande_seq'), 'Antananarivo', '2022-07-30', 'C017', 11, 2),
+(nextval('commande_seq'), 'Fianarantsoa', '2021-08-18', 'C018', 1, 2),
+(nextval('commande_seq'), 'Mahajanga', '2021-09-20', 'C019', 11, 2),
+(nextval('commande_seq'), 'Toamasina', '2021-10-15', 'C020', 0, 2);
 
 INSERT INTO commande_produit (id_commande, id_produit, prix_unitaire, quantite) VALUES
-(1, 1, 4500, 10), -- Pommes
-(1, 3, 3500, 20), -- Tomates
-(2, 5, 4000, 15), -- Salades
-(2, 8, 5000, 30), -- Riz
-(3, 11, 2000, 25), -- Menthe
-(3, 15, 4000, 5), -- Graines de tournesol
-(4, 17, 4000, 12), -- Œufs de poule
-(4, 19, 10000, 10), -- Bœuf
-(5, 22, 5000, 5), -- Agneau
-(5, 24, 1500, 50), -- Lait
-(6, 27, 2500, 30), -- Beurre
-(6, 29, 6000, 20), -- Poissons d'eau douce
-(7, 32, 1800, 10), -- Coquillages
-(7, 35, 5600, 8),  -- Propolis
-(8, 3, 3500, 25),  -- Tomates
-(9, 5, 4000, 10),  -- Salades
-(9, 17, 4000, 20), -- Œufs de poule
-(10, 8, 5000, 40), -- Riz
-(10, 33, 3000, 10); -- Miel
+(1, 1, 4500, 10),
+(1, 3, 3500, 20),
+(2, 5, 4000, 15),
+(2, 8, 5000, 30),
+(3, 11, 2000, 25),
+(3, 8, 4000, 5),
+(5, 27, 5000, 5),
+(5, 24, 1500, 50),
+(6, 27, 2500, 30),
+(6, 29, 6000, 20),
+(7, 32, 1800, 10),
+(7, 33, 5600, 8),
+(8, 3, 3500, 25),
+(9, 5, 4000, 10),
+(9, 17, 4000, 20),
+(10, 8, 5000, 40),
+(10, 33, 3000, 10),
+(11, 2, 2500, 12),
+(11, 5, 3000, 20),
+(12, 19, 4000, 8), 
+(12, 11, 5000, 15),
+(13, 17, 2000, 5),
+(13, 19, 3000, 25),
+(15, 21, 4000, 5),
+(15, 32, 6000, 3),
+(16, 8, 4000, 15),
+(16, 1, 6000, 3),
+(17, 11, 4000, 5),
+(17, 17, 6000, 3),
+(18, 24, 4000, 5),
+(18, 3, 6000, 3),
+(19, 33, 4000, 5),
+(19, 19, 6000, 3);
 
 INSERT INTO entree (id, date_entree, quantite, id_produit) VALUES
-(1, '2024-08-25', 100, 2),  -- Oranges
-(2, '2024-08-25', 50, 3),   -- Tomates
-(3, '2024-09-01', 150, 1),  -- Pommes
-(4, '2024-09-02', 75, 4),   -- Carottes
-(5, '2024-09-02', 200, 5),  -- Salades
-(6, '2024-09-03', 100, 8),  -- Riz
-(7, '2024-09-04', 90, 11),  -- Menthe
-(8, '2024-09-05', 120, 17), -- Œufs de poule
-(9, '2024-09-06', 50, 19),  -- Bœuf
-(10, '2024-09-06', 200, 24), -- Lait
-(11, '2024-09-07', 180, 27), -- Beurre
-(12, '2024-09-08', 250, 29), -- Poissons d'eau douce
-(13, '2024-09-09', 100, 32), -- Coquillages
-(14, '2024-09-09', 300, 3),  -- Tomates
-(15, '2024-09-10', 400, 5),  -- Salades
-(16, '2024-09-10', 100, 17), -- Œufs de poule
-(17, '2024-09-11', 200, 8),  -- Riz
-(18, '2024-09-11', 50, 19),  -- Bœuf
-(19, '2024-09-12', 100, 21), -- Poulet
-(20, '2024-09-12', 150, 33); -- Miel
+(1, '2020-08-25', 100, 2),  -- Oranges
+(2, '2020-08-25', 50, 3),   -- Tomates
+(3, '2020-09-01', 150, 1),  -- Pommes
+(4, '2020-09-02', 75, 4),   -- Carottes
+(5, '2020-09-02', 200, 5),  -- Salades
+(6, '2020-09-03', 100, 8),  -- Riz
+(7, '2020-09-04', 90, 11),  -- Menthe
+(8, '2020-09-05', 120, 17), -- Œufs de poule
+(9, '2020-09-06', 50, 19),  -- Bœuf
+(10, '2020-09-06', 200, 24), -- Lait
+(11, '2020-09-07', 180, 27), -- Beurre
+(12, '2020-09-08', 250, 29), -- Poissons d'eau douce
+(13, '2020-09-09', 100, 32), -- Coquillages
+(14, '2020-09-09', 300, 3),  -- Tomates
+(15, '2020-09-10', 400, 5),  -- Salades
+(16, '2020-09-10', 100, 17), -- Œufs de poule
+(17, '2020-09-11', 200, 8),  -- Riz
+(18, '2020-09-11', 50, 19),  -- Bœuf
+(19, '2020-09-12', 100, 21), -- Poulet
+(20, '2020-09-12', 150, 33); -- Miel
 
 INSERT INTO sortie (id, date_sortie, quantite, id_produit) VALUES
-(1, '2024-09-01', 50, 1),  -- Pommes
-(2, '2024-09-02', 30, 3),  -- Tomates
-(3, '2024-09-03', 40, 5),  -- Salades
-(4, '2024-09-04', 60, 8),  -- Riz
-(5, '2024-09-05', 25, 11), -- Menthe
-(6, '2024-09-06', 20, 17), -- Œufs de poule
-(7, '2024-09-07', 50, 24), -- Lait
-(8, '2024-09-08', 20, 27), -- Beurre
-(9, '2024-09-09', 40, 29), -- Poissons d'eau douce
-(10, '2024-09-10', 10, 32); -- Coquillages
+(nextval('sortie_seq'), '2024-09-01', 10, 1),
+(nextval('sortie_seq'), '2024-09-01', 20, 3),
+(nextval('sortie_seq'), '2024-09-02', 15, 5),
+(nextval('sortie_seq'), '2024-09-02', 30, 8),
+(nextval('sortie_seq'), '2024-09-03', 25, 11),
+(nextval('sortie_seq'), '2024-09-03', 5, 8),
+(nextval('sortie_seq'), '2024-09-05', 5, 27),
+(nextval('sortie_seq'), '2024-09-05', 50, 24),
+(nextval('sortie_seq'), '2024-09-06', 30, 27),
+(nextval('sortie_seq'), '2024-09-06', 20, 29),
+(nextval('sortie_seq'), '2024-09-07', 10, 32),
+(nextval('sortie_seq'), '2024-09-07', 8, 33),
+(nextval('sortie_seq'), '2024-09-08', 25, 3),
+(nextval('sortie_seq'), '2024-09-09', 10, 5),
+(nextval('sortie_seq'), '2024-09-09', 20, 17),
+(nextval('sortie_seq'), '2024-09-10', 20, 8),
+(nextval('sortie_seq'), '2024-09-10', 10, 33),
+(nextval('sortie_seq'), '2023-01-15', 12, 2),
+(nextval('sortie_seq'), '2023-01-15', 20, 5),
+(nextval('sortie_seq'), '2023-02-20', 8, 19),
+(nextval('sortie_seq'), '2023-02-20', 15, 11),
+(nextval('sortie_seq'), '2023-03-25', 5, 17),
+(nextval('sortie_seq'), '2023-03-25', 25, 19),
+(nextval('sortie_seq'), '2022-05-10', 5, 21),
+(nextval('sortie_seq'), '2022-05-10', 3, 32),
+(nextval('sortie_seq'), '2022-06-22', 15, 8),
+(nextval('sortie_seq'), '2022-06-22', 3, 1),
+(nextval('sortie_seq'), '2022-07-30', 5, 11),
+(nextval('sortie_seq'), '2022-07-30', 3, 17),
+(nextval('sortie_seq'), '2021-08-18', 5, 24),
+(nextval('sortie_seq'), '2021-08-18', 3, 3),
+(nextval('sortie_seq'), '2021-09-20', 5, 33),
+(nextval('sortie_seq'), '2021-09-20', 3, 19);
 
 
 UPDATE produit
