@@ -83,9 +83,7 @@ WITH ANNEE_DISTINCTE AS (
 )
 SELECT
     P.ID                                             AS ID_PRODUIT,
-    P.NOM                                            AS NOM_PRODUIT,
-    U.ID                                             AS ID_UNITE,
-    U.NOM                                            AS NOM_UNITE,
+    P.ID_UNITE                                       AS ID_UNITE,
     COALESCE(SUM(CP.QUANTITE), 0)                    AS TOTAL_VENDUS,
     COALESCE(SUM(CP.PRIX_UNITAIRE * CP.QUANTITE), 0) AS TOTAL_VENTES,
     MA.MOIS                                          AS MOIS,
@@ -97,22 +95,21 @@ FROM
     AND EXTRACT(YEAR FROM C.DATE_COMMANDE) = MA.ANNEE
     LEFT JOIN COMMANDE_PRODUIT CP
     ON CP.ID_COMMANDE = C.ID
+    AND CP.ID_PRODUIT = 1
     LEFT JOIN PRODUIT P
     ON CP.ID_PRODUIT = P.ID
-    LEFT JOIN UNITE U
-    ON U.ID = P.ID_UNITE
+    OR P.ID IS NULL
 WHERE
     MA.ANNEE = 2024
-    AND ((C.STATUS_COMMANDE >= 1 AND P.ID = 1) OR C.ID IS NULL OR P.ID IS NULL)
+    AND ((C.STATUS_COMMANDE >= 1)
+    OR P.ID IS NULL
+    OR C.ID IS NULL)
 GROUP BY
     P.ID,
-    P.NOM,
-    U.ID,
-    U.NOM,
+    P.ID_UNITE,
     MA.MOIS,
     MA.ANNEE
 ORDER BY
-    P.ID,
     MA.ANNEE,
     MA.MOIS;
 
@@ -144,14 +141,16 @@ FROM
     ON CP.ID_PRODUIT = P.ID
 WHERE
     MA.ANNEE = 2024
-    AND ((C.STATUS_COMMANDE >= 1 AND P.ID_PERSONNE = 1) OR C.ID IS NULL OR P.ID IS NULL)
+    AND ((C.STATUS_COMMANDE >= 1
+    AND P.ID_PERSONNE = 1)
+    OR C.ID IS NULL
+    OR P.ID IS NULL)
 GROUP BY
     MA.MOIS,
     MA.ANNEE
 ORDER BY
     MA.ANNEE,
     MA.MOIS;
-
 
 -- LA LISTE DES ANNEES OU IL Y A UNE OU PLUSIEURS COMMANDES
 WITH ANNEE_DISTINCTE AS (
@@ -184,3 +183,102 @@ GROUP BY
     MA.ANNEE
 ORDER BY
     MA.ANNEE;
+
+-- TOTAL DE VENTE PAR CATEGORIE
+CREATE OR REPLACE VIEW TOTAL_VENTES_PAR_CATEGORIE AS
+    SELECT
+        C.ID         AS ID_CATEGORIE,
+        C.NOM        AS CATEGORIE_NOM,
+        COALESCE(SUM(
+            CASE
+                WHEN CO.STATUS_COMMANDE >= 1 THEN
+                    CP.QUANTITE * CP.PRIX_UNITAIRE
+                ELSE
+                    0
+            END), 0) AS TOTAL_VENTES
+    FROM
+        CATEGORIE        C
+        LEFT JOIN PRODUIT P
+        ON C.ID = P.ID_CATEGORIE
+        LEFT JOIN COMMANDE_PRODUIT CP
+        ON P.ID = CP.ID_PRODUIT
+        LEFT JOIN COMMANDE CO
+        ON CP.ID_COMMANDE = CO.ID
+    GROUP BY
+        C.ID,
+        C.NOM
+    ORDER BY
+        C.ID;
+
+-- TOTAL DE VENTE PAR TYPE PRODUIT
+CREATE OR REPLACE VIEW TOTAL_VENTES_PAR_TYPE_PRODUIT AS
+    SELECT
+        TP.ID        AS ID_TYPE_PRODUIT,
+        TP.NOM       AS TYPE_PRODUIT_NOM,
+        COALESCE(SUM(
+            CASE
+                WHEN C2.STATUS_COMMANDE >= 1 THEN
+                    CP.QUANTITE * CP.PRIX_UNITAIRE
+                ELSE
+                    0
+            END), 0) AS TOTAL_VENTES
+    FROM
+        TYPE_PRODUIT     TP
+        LEFT JOIN CATEGORIE C
+        ON TP.ID = C.ID_TYPE_PRODUIT
+        LEFT JOIN PRODUIT P
+        ON C.ID = P.ID_CATEGORIE
+        LEFT JOIN COMMANDE_PRODUIT CP
+        ON P.ID = CP.ID_PRODUIT
+        LEFT JOIN COMMANDE C2
+        ON CP.ID_COMMANDE = C2.ID
+    GROUP BY
+        TP.ID,
+        TP.NOM
+    ORDER BY
+        TP.ID;
+
+-- TOTAL DE VENTE PAR REGION
+CREATE OR REPLACE VIEW TOTAL_VENTES_PAR_REGION AS
+    SELECT
+        R.ID         AS ID_REGION,
+        R.NOM        AS REGION_NOM,
+        COALESCE(SUM(
+            CASE
+                WHEN C.STATUS_COMMANDE >= 1 THEN
+                    CP.QUANTITE * CP.PRIX_UNITAIRE
+                ELSE
+                    0
+            END), 0) AS TOTAL_VENTES
+    FROM
+        REGION           R
+        LEFT JOIN PRODUIT P
+        ON R.ID = P.ID_REGION
+        LEFT JOIN COMMANDE_PRODUIT CP
+        ON P.ID = CP.ID_PRODUIT
+        LEFT JOIN COMMANDE C
+        ON CP.ID_COMMANDE = C.ID
+    GROUP BY
+        R.ID,
+        R.NOM
+    ORDER BY
+        R.ID;
+
+-- MODIFICATION DU MONTANT TOTAL DANS COMMANDE
+UPDATE COMMANDE C
+SET
+    MONTANT_TOTAL = (
+        SELECT
+            SUM(CP.PRIX_UNITAIRE * CP.QUANTITE)
+        FROM
+            COMMANDE_PRODUIT CP
+        WHERE
+            CP.ID_COMMANDE = C.ID
+    )
+WHERE
+    C.ID IN (
+        SELECT
+            DISTINCT ID_COMMANDE
+        FROM
+            COMMANDE_PRODUIT
+    );

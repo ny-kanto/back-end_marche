@@ -5,10 +5,7 @@ import io.jsonwebtoken.*;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
@@ -17,14 +14,13 @@ import com.marche.marche.modele.Utilisateur;
 import com.marche.marche.repository.PersonneRepository;
 
 import java.util.Date;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Component
 public class JwtUtil {
 
     private final String secret_key = "mysecretkey";
-    private long accessTokenValidity = 60*60;
+    private long accessTokenValidity = 60 * 60;
 
     private final JwtParser jwtParser;
 
@@ -48,7 +44,6 @@ public class JwtUtil {
         this.accessTokenValidity = accessTokenValidity;
     }
 
-
     public void addTokenToBlacklist(String token, Date expirationDate) {
         blacklistedTokens.put(token, expirationDate);
     }
@@ -64,7 +59,7 @@ public class JwtUtil {
 
     public String createToken(Utilisateur user) {
         Claims claims = Jwts.claims().setSubject(user.getEmail());
-        claims.put("id", user.getId());        
+        claims.put("id", user.getId());
         claims.put("role", user.getAdmin(pr));
         claims.put("firstName", user.getEmail());
         claims.put("password", user.getPassword());
@@ -128,10 +123,9 @@ public class JwtUtil {
     public static int getUserId(Claims claims) {
         return claims.get("id", Integer.class);
     }
-    
 
-    private List<String> getRoles(Claims claims) {
-        return (List<String>) claims.get("roles");
-    }
+    // private List<String> getRoles(Claims claims) {
+    // return (List<String>) claims.get("roles");
+    // }
 
 }

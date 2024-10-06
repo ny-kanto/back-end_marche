@@ -1,10 +1,7 @@
 package com.marche.marche.modele;
 
-import java.sql.Timestamp;
-
 import com.marche.marche.utils.EvaluationId;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;

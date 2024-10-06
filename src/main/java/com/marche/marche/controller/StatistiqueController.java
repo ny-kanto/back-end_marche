@@ -19,6 +19,7 @@ import com.marche.marche.authentification.JwtUtil;
 import com.marche.marche.modele.Personne;
 import com.marche.marche.modele.Produit;
 import com.marche.marche.modele.Statistique;
+import com.marche.marche.modele.StatistiqueAdmin;
 import com.marche.marche.modele.Utilisateur;
 import com.marche.marche.services.PersonneService;
 import com.marche.marche.services.ProduitService;
@@ -45,8 +46,8 @@ public class StatistiqueController {
 
     @Autowired
     private JwtUtil jwtUtil;
-    
-    // CONTROLLEUR POUR VOIR LA LISTE DES PRODUITS DU VENDEUR
+
+    // CONTROLLEUR POUR VOIR LES STATISTIQUES DES PRODUITS DU VENDEUR
     @GetMapping("/all")
     public ResponseEntity<APIResponse> getAll(@RequestHeader(name = "Authorization") String authorizationHeader,
             @RequestParam(defaultValue = "0") int idProduit,
@@ -57,7 +58,7 @@ public class StatistiqueController {
                 String token = authorizationHeader.substring(7);
                 Claims claims = jwtUtil.parseJwtClaims(token);
                 idUtilisateur = JwtUtil.getUserId(claims);
-            } 
+            }
 
             if (annee == 0) {
                 annee = LocalDate.now().getYear();
@@ -70,6 +71,8 @@ public class StatistiqueController {
             Produit produit;
             List<Statistique> statistiques = new ArrayList<>();
             List<Integer> dateAnnee = ss.getDateCommandeAnnee(p);
+
+            double totalVente = ss.getTotalVentes();
 
             System.out.println("annee : " + annee);
             System.out.println("personne : " + p.getNom());
@@ -85,6 +88,43 @@ public class StatistiqueController {
             obj.add(statistiques);
             obj.add(produits);
             obj.add(dateAnnee);
+            obj.add(totalVente);
+            APIResponse api = new APIResponse(null, obj);
+            return ResponseEntity.ok(api);
+        } catch (Exception e) {
+            e.printStackTrace();
+            APIResponse response = new APIResponse(e.getMessage(), null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    // CONTROLLEUR POUR VOIR LES TOTAL DE VENTES DES CATEGORIES
+    @GetMapping("/admin")
+    public ResponseEntity<APIResponse> getStatistiqueAdmin(@RequestHeader(name = "Authorization") String authorizationHeader) {
+        try {
+            // int idUtilisateur = 0;
+            // if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            //     String token = authorizationHeader.substring(7);
+            //     Claims claims = jwtUtil.parseJwtClaims(token);
+            //     idUtilisateur = JwtUtil.getUserId(claims);
+            // }
+
+            List<Object> obj = new ArrayList<>();
+            // Utilisateur u = us.getUtilisateur(idUtilisateur);
+            // Personne p = pes.getPersonneByUtilisateur(u);
+            List<StatistiqueAdmin> statistiquesCategory = new ArrayList<>();
+            List<StatistiqueAdmin> statistiquesLocalisation = new ArrayList<>();
+            List<StatistiqueAdmin> statistiquesType = new ArrayList<>();
+
+            // System.out.println("personne : " + p.getNom());
+
+            statistiquesCategory = ss.getStatistiqueAdminByCategory();
+            statistiquesLocalisation = ss.getStatistiqueAdminByRegion();
+            statistiquesType = ss.getStatistiqueAdminByTypeProduit();
+
+            obj.add(statistiquesCategory);
+            obj.add(statistiquesLocalisation);
+            obj.add(statistiquesType);
             APIResponse api = new APIResponse(null, obj);
             return ResponseEntity.ok(api);
         } catch (Exception e) {

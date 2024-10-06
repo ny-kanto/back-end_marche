@@ -12,7 +12,6 @@ import com.marche.marche.modele.Personne;
 import com.marche.marche.modele.Produit;
 import com.marche.marche.utils.EvaluationId;
 
-
 @Repository
 public interface EvaluationRepository extends JpaRepository<Evaluation, EvaluationId> {
     List<Evaluation> findByProduit(Produit produit);

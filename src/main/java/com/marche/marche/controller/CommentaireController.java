@@ -53,7 +53,8 @@ public class CommentaireController {
     @PostMapping("/save/{id_produit}")
     public ResponseEntity<APIResponse> saveProduitCommentaire(
             @RequestHeader(name = "Authorization") String authorizationHeader,
-            @PathVariable(name = "id_produit") int idProduit, @RequestParam(name = "contenu_commentaire") String contenuCommentaire) {
+            @PathVariable(name = "id_produit") int idProduit,
+            @RequestParam(name = "contenu_commentaire") String contenuCommentaire) {
         try {
             int idUtilisateur = 0;
             if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {

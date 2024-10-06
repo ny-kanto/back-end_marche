@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import com.marche.marche.api.APIResponse;
 import com.marche.marche.authentification.JwtUtil;
-import com.marche.marche.modele.Panier;
 import com.marche.marche.modele.Personne;
 import com.marche.marche.modele.Role;
 import com.marche.marche.modele.TypeProduction;
@@ -43,10 +42,12 @@ public class UtilisateurController {
     private JwtUtil jwtUtil;
 
     @PostMapping("/signup")
-    public ResponseEntity<APIResponse> signup(@RequestParam("nom") String nom, @RequestParam("prenom") String prenom, @RequestParam("pseudo") String pseudo,
+    public ResponseEntity<APIResponse> signup(@RequestParam("nom") String nom, @RequestParam("prenom") String prenom,
+            @RequestParam("pseudo") String pseudo,
             @RequestParam("email") String email, @RequestParam("password") String password,
             @RequestParam("date_naissance") Date dateNaissance, @RequestParam("code_postal") String codePostal,
-            @RequestParam("id_role") int idRole, @RequestParam(name = "id_type_production", required = false) int idTypeProduction,
+            @RequestParam("id_role") int idRole,
+            @RequestParam(name = "id_type_production", required = false) int idTypeProduction,
             @RequestParam("contact") String contact, @RequestParam("localisation") String localisation) {
 
         try {
@@ -71,6 +72,24 @@ public class UtilisateurController {
         }
     }
 
+    @PostMapping("/new-admin")
+    public ResponseEntity<APIResponse> signup(@RequestParam("pseudo") String pseudo,
+            @RequestParam("email") String email, @RequestParam("password") String password) {
+
+        try {
+            Utilisateur u = new Utilisateur(pseudo, email, password, 1);
+            us.saveUtilisateur(u);
+
+            APIResponse api = new APIResponse(null, u);
+            return ResponseEntity.ok(api);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Erreur message : " + e.getMessage());
+            APIResponse response = new APIResponse(e.getMessage(), null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
     @GetMapping("/info")
     public ResponseEntity<APIResponse> getCountPanier(
             @RequestHeader(name = "Authorization") String authorizationHeader) {
@@ -85,8 +104,9 @@ public class UtilisateurController {
             List<Object> obj = new ArrayList<>();
             Utilisateur u = us.getUtilisateur(idUtilisateur);
             Personne p = ps.getPersonneByUtilisateur(u);
-            
+
             obj.add(p);
+            obj.add(u);
 
             APIResponse api = new APIResponse(null, obj);
             return ResponseEntity.ok(api);

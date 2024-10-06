@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -36,13 +37,14 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
+            @NonNull FilterChain filterChain)
             throws ServletException, IOException {
         Map<String, Object> errorDetails = new HashMap<>();
         try {
             String accessToken = jwtUtil.resolveToken(request);
             if (accessToken == null) {
-                filterChain.doFilter(request, response);    
+                filterChain.doFilter(request, response);
                 return;
             }
             System.out.println("token : " + accessToken);
@@ -53,7 +55,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 System.out.println("email : " + email);
                 System.out.println("id mety: " + id);
                 List<GrantedAuthority> roles = new ArrayList<>();
-                roles.add(new SimpleGrantedAuthority("ROLE_"+claims.get("role").toString()));
+                roles.add(new SimpleGrantedAuthority("ROLE_" + claims.get("role").toString()));
                 Authentication authentication = new UsernamePasswordAuthenticationToken(email, "", roles);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }

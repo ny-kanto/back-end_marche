@@ -8,7 +8,6 @@ import com.marche.marche.modele.Personne;
 import com.marche.marche.modele.Produit;
 import java.util.List;
 
-
 @Repository
 public interface ProduitRepository extends JpaRepository<Produit, Integer> {
     List<Produit> findByPersonne(Personne personne);

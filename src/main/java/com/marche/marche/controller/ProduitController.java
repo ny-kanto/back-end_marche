@@ -40,7 +40,6 @@ import java.util.Map;
 import java.util.HashMap;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -261,14 +260,15 @@ public class ProduitController {
     public ResponseEntity<APIResponse> findById(@RequestHeader(name = "Authorization") String authorizationHeader,
             @PathVariable int id) {
         try {
-            int idUtilisateur = 0;
-            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-                String token = authorizationHeader.substring(7);
-                Claims claims = jwtUtil.parseJwtClaims(token);
-                idUtilisateur = JwtUtil.getUserId(claims);
-            }
-            Utilisateur u = us.getUtilisateur(idUtilisateur);
-            Personne p = pes.getPersonneByUtilisateur(u);
+            // int idUtilisateur = 0;
+            // if (authorizationHeader != null && authorizationHeader.startsWith("Bearer "))
+            // {
+            // String token = authorizationHeader.substring(7);
+            // Claims claims = jwtUtil.parseJwtClaims(token);
+            // idUtilisateur = JwtUtil.getUserId(claims);
+            // }
+            // Utilisateur u = us.getUtilisateur(idUtilisateur);
+            // Personne p = pes.getPersonneByUtilisateur(u);
 
             List<Object> obj = new ArrayList<>();
             Produit te = ps.getProduit(id);
@@ -345,15 +345,16 @@ public class ProduitController {
             @RequestParam(defaultValue = "id_produit") String column,
             @RequestParam(defaultValue = "1") int sort) {
         try {
-            int idUtilisateur = 0;
-            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-                String token = authorizationHeader.substring(7);
-                Claims claims = jwtUtil.parseJwtClaims(token);
-                idUtilisateur = JwtUtil.getUserId(claims);
-            }
+            // int idUtilisateur = 0;
+            // if (authorizationHeader != null && authorizationHeader.startsWith("Bearer "))
+            // {
+            // String token = authorizationHeader.substring(7);
+            // Claims claims = jwtUtil.parseJwtClaims(token);
+            // idUtilisateur = JwtUtil.getUserId(claims);
+            // }
             List<Object> obj = new ArrayList<>();
-            Utilisateur u = us.getUtilisateur(idUtilisateur);
-            Personne p = pes.getPersonneByUtilisateur(u);
+            // Utilisateur u = us.getUtilisateur(idUtilisateur);
+            // Personne p = pes.getPersonneByUtilisateur(u);
             List<Produit> produits = new ArrayList<>();
             List<Categorie> categories = cs.getAll();
             List<Unite> unites = uns.getAll();
@@ -366,7 +367,8 @@ public class ProduitController {
                 produits = ps.getProduitUserPerPage(noPage, nbrParPage, column, sort);
                 totalPages = (int) Math.ceil((double) ps.countProduit() / nbrParPage);
             } else {
-                produits = ps.getProduitUserFiltre(nom, idLocalisation, idTypeProduction, disponibilite, prixMin, prixMax,
+                produits = ps.getProduitUserFiltre(nom, idLocalisation, idTypeProduction, disponibilite, prixMin,
+                        prixMax,
                         idCategorie, idTypeProduit, noPage, nbrParPage, column, sort);
                 totalPages = (int) Math.ceil((double) ps.countProduitFiltreUser(nom, idLocalisation, idTypeProduction,
                         disponibilite, prixMin, prixMax,

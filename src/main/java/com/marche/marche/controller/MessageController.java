@@ -13,17 +13,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.marche.marche.api.APIResponse;
 import com.marche.marche.authentification.JwtUtil;
-import com.marche.marche.modele.Commentaire;
 import com.marche.marche.modele.Conversation;
 import com.marche.marche.modele.Message;
 import com.marche.marche.modele.Personne;
-import com.marche.marche.modele.Produit;
 import com.marche.marche.modele.Utilisateur;
-import com.marche.marche.services.CommentaireService;
 import com.marche.marche.services.ConversationService;
 import com.marche.marche.services.MessageService;
 import com.marche.marche.services.PersonneService;
-import com.marche.marche.services.ProduitService;
 import com.marche.marche.services.UtilisateurService;
 
 import java.sql.Timestamp;
@@ -33,6 +29,7 @@ import io.jsonwebtoken.Claims;
 
 import java.util.List;
 import java.util.ArrayList;
+import org.springframework.web.bind.annotation.GetMapping;
 
 @RestController
 @RequestMapping("/message")
@@ -42,13 +39,10 @@ public class MessageController {
     private MessageService ms;
 
     @Autowired
-    private ConversationService cos;
+    private ConversationService cs;
 
     @Autowired
     private UtilisateurService us;
-
-    @Autowired
-    private ProduitService ps;
 
     @Autowired
     private PersonneService pes;
@@ -56,11 +50,12 @@ public class MessageController {
     @Autowired
     private JwtUtil jwtUtil;
 
-    // CONTROLLEUR D'AJOUT DE COMMENTAIRE DE PRODUIT PAR L'ACHETEUR
-    @PostMapping("/save/{id_acheteur}")
-    public ResponseEntity<APIResponse> saveProduitCommentaire(
+    // CONTROLLEUR D'ENVOI DE MESSAGE
+    @PostMapping("/save-message/{id_recepteur}")
+    public ResponseEntity<APIResponse> saveMessage(
             @RequestHeader(name = "Authorization") String authorizationHeader,
-            @PathVariable(name = "id_acheteur") int idAcheteur, @RequestParam(name = "contenu_message") String contenuMessage) {
+            @PathVariable(name = "id_recepteur") int idRecepteur,
+            @RequestParam(name = "contenu_message") String contenuMessage) {
         try {
             int idUtilisateur = 0;
             if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
@@ -74,16 +69,18 @@ public class MessageController {
             Utilisateur u = us.getUtilisateur(idUtilisateur);
             Personne p = pes.getPersonneByUtilisateur(u);
 
-            Utilisateur u1 = us.getUtilisateur(idAcheteur);
+            Utilisateur u1 = us.getUtilisateur(idRecepteur);
             Personne p1 = pes.getPersonneByUtilisateur(u1);
 
-            Conversation conversation = new Conversation(p, p1);
+            Conversation conversation = cs.getConversationByVendeurAndAcheteur(p, p1);
 
             Timestamp dateMessage = Timestamp.from(Instant.now());
 
             Message message = new Message(contenuMessage, dateMessage, conversation, p);
 
             ms.saveMessage(message);
+
+            obj.add(message);
 
             APIResponse api = new APIResponse(null, obj);
             return ResponseEntity.ok(api);
@@ -93,4 +90,77 @@ public class MessageController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
+
+    // CONTROLLEUR DE CREATION DE CONVERSATION
+    @PostMapping("/save-conversation/{id_recepteur}")
+    public ResponseEntity<APIResponse> saveConversation(
+            @RequestHeader(name = "Authorization") String authorizationHeader,
+            @PathVariable(name = "id_recepteur") int idRecepteur) {
+        try {
+            int idUtilisateur = 0;
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                String token = authorizationHeader.substring(7);
+                Claims claims = jwtUtil.parseJwtClaims(token);
+                idUtilisateur = JwtUtil.getUserId(claims);
+            }
+
+            List<Object> obj = new ArrayList<>();
+
+            Utilisateur u = us.getUtilisateur(idUtilisateur);
+            Personne p = pes.getPersonneByUtilisateur(u);
+
+            Utilisateur u1 = us.getUtilisateur(idRecepteur);
+            Personne p1 = pes.getPersonneByUtilisateur(u1);
+
+            Conversation conversation = new Conversation(p, p1);
+
+            cs.saveConversation(conversation);
+
+            obj.add(conversation);
+
+            APIResponse api = new APIResponse(null, obj);
+            return ResponseEntity.ok(api);
+        } catch (Exception e) {
+            e.printStackTrace();
+            APIResponse response = new APIResponse(e.getMessage(), null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    // CONTROLLEUR POUR AVOIR LA LISTE DE MESSAGE
+    @GetMapping("/list/{id_recepteur}")
+    public ResponseEntity<APIResponse> getListMessageByConversation(
+            @RequestHeader(name = "Authorization") String authorizationHeader,
+            @PathVariable(name = "id_recepteur") int idRecepteur) {
+        try {
+            int idUtilisateur = 0;
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                String token = authorizationHeader.substring(7);
+                Claims claims = jwtUtil.parseJwtClaims(token);
+                idUtilisateur = JwtUtil.getUserId(claims);
+            }
+
+            List<Object> obj = new ArrayList<>();
+
+            Utilisateur u = us.getUtilisateur(idUtilisateur);
+            Personne p = pes.getPersonneByUtilisateur(u);
+
+            Utilisateur u1 = us.getUtilisateur(idRecepteur);
+            Personne p1 = pes.getPersonneByUtilisateur(u1);
+
+            Conversation conversation = cs.getConversationByVendeurAndAcheteur(p, p1);
+
+            List<Message> messages = ms.getListMessagesByConversation(conversation);
+
+            obj.add(messages);
+
+            APIResponse api = new APIResponse(null, obj);
+            return ResponseEntity.ok(api);
+        } catch (Exception e) {
+            e.printStackTrace();
+            APIResponse response = new APIResponse(e.getMessage(), null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
 }

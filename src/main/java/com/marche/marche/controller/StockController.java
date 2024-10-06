@@ -47,15 +47,16 @@ public class StockController {
             @RequestParam(name = "id_produit") String idProduit, @RequestParam String quantite,
             @RequestParam(name = "date_entree") Date dateEntree) {
         try {
-            int idUtilisateur = 0;
-            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-                String token = authorizationHeader.substring(7);
-                Claims claims = jwtUtil.parseJwtClaims(token);
-                idUtilisateur = JwtUtil.getUserId(claims);
-            }
+            // int idUtilisateur = 0;
+            // if (authorizationHeader != null && authorizationHeader.startsWith("Bearer "))
+            // {
+            // String token = authorizationHeader.substring(7);
+            // Claims claims = jwtUtil.parseJwtClaims(token);
+            // idUtilisateur = JwtUtil.getUserId(claims);
+            // }
 
-            Utilisateur u = us.getUtilisateur(idUtilisateur);
-            Personne p = pes.getPersonneByUtilisateur(u);
+            // Utilisateur u = us.getUtilisateur(idUtilisateur);
+            // Personne p = pes.getPersonneByUtilisateur(u);
             Produit produit = ps.getProduit(Integer.valueOf(idProduit));
 
             Entree entree = new Entree(Double.valueOf(quantite), dateEntree, produit);

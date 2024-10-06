@@ -39,8 +39,6 @@ import com.marche.marche.services.ProduitService;
 import com.marche.marche.services.UtilisateurService;
 import com.marche.marche.utils.Utils;
 
-import com.marche.marche.modele.response.ErrorRes;
-
 import io.jsonwebtoken.Claims;
 
 @RestController
@@ -69,6 +67,7 @@ public class PanierController {
     private JwtUtil jwtUtil;
 
     // CONTROLLEUR D'AJOUT DE PRODUIT DANS PANIER DE L'ACHETEUR
+    @SuppressWarnings("rawtypes")
     @PostMapping("/save/{id_produit}")
     public ResponseEntity saveProduitPanier(
             @RequestHeader(name = "Authorization") String authorizationHeader,
@@ -98,12 +97,15 @@ public class PanierController {
             Produit produit = pros.getProduit(idProduit);
 
             if (Integer.parseInt(quantite) < 0) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorRes(HttpStatus.BAD_REQUEST, "Veuillez entrer une quantité positive"));
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(new ErrorRes(HttpStatus.BAD_REQUEST, "Veuillez entrer une quantité positive"));
             }
 
             if (etatStock.getReste() < Integer.parseInt(quantite)) {
-                // return ResponseEntity.badRequest().body(new APIResponse("Quantité indisponible", null));
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorRes(HttpStatus.BAD_REQUEST, "Quantité dans le stock manquant"));
+                // return ResponseEntity.badRequest().body(new APIResponse("Quantité
+                // indisponible", null));
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(new ErrorRes(HttpStatus.BAD_REQUEST, "Quantité dans le stock manquant"));
             }
 
             ProduitPanier pp = pas.saveProduitPanier(new ProduitPanier(produit, panier, Double.valueOf(quantite)));
@@ -263,6 +265,7 @@ public class PanierController {
         }
     }
 
+    @SuppressWarnings("rawtypes")
     @PutMapping("/update/{id_produit}")
     public ResponseEntity updatePanierProduit(
             @RequestHeader(name = "Authorization") String authorizationHeader,
@@ -280,9 +283,10 @@ public class PanierController {
 
             Produit produit = pros.getProduit(idProduit);
             EtatStock ets = es.getEtatStockByIdProduit(idProduit);
-            
+
             if (ets.getReste() < quantite) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorRes(HttpStatus.BAD_REQUEST, "Quantité dans le stock manquant"));
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(new ErrorRes(HttpStatus.BAD_REQUEST, "Quantité dans le stock manquant"));
             }
 
             Utilisateur u = us.getUtilisateur(idUtilisateur);

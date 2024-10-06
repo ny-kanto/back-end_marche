@@ -14,7 +14,7 @@ import com.marche.marche.repository.EvaluationRepository;
 
 @Service
 public class EvaluationService {
-    
+
     @Autowired
     private EvaluationRepository er;
 
@@ -22,7 +22,7 @@ public class EvaluationService {
         er.save(evaluation);
     }
 
-    public void updateEvaluation(Produit produit, Personne personne,  int note) {
+    public void updateEvaluation(Produit produit, Personne personne, int note) {
         Evaluation evaluation = er.findByProduitAndPersonne(produit, personne);
         evaluation.setNote(note);
         er.save(evaluation);
@@ -49,8 +49,8 @@ public class EvaluationService {
             Long count = (Long) result[1];
             noteCounts.put(note, count);
         }
-    
+
         return noteCounts;
     }
-    
+
 }

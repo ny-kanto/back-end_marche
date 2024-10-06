@@ -1,22 +1,17 @@
 package com.marche.marche.configuration;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.*;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
@@ -74,15 +69,21 @@ public class SpringSecurityConfig {
     // return authenticationManagerBuilder.build();
     // }
 
-    @SuppressWarnings("deprecated")
+    @SuppressWarnings({ "deprecated", "removal", "deprecation" })
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .cors().and()
                 .authorizeRequests()
-                .requestMatchers("/rest/auth/**", "/user/signup", "/type-production/all", "/user/info").permitAll()
-                .requestMatchers("/produit/save", "/produit/all", "/produit/update", "/produit/get", "/produit/delete", "/stock/**", "/statistique/all").hasRole("USER_VENDEUR")
-                .requestMatchers("/produit/user-all", "/panier/**", "/produit/get-user", "/evaluation/**", "/commentaire/**").hasRole("USER_ACHETEUR")
+                .requestMatchers("/rest/auth/**", "/user/signup", "/type-production/all", "/user/info", "/user/new-admin").permitAll()
+                .requestMatchers("/produit/save", "/produit/all", "/produit/update", "/produit/get", "/produit/delete",
+                        "/stock/**", "/statistique/all", "/commande/**", "/message/save-message", "/message/list")
+                .hasRole("USER_VENDEUR")
+                .requestMatchers("/produit/user-all", "/panier/**", "/produit/get-user", "/evaluation/**",
+                        "/commentaire/**", "/message/save-message", "/message/list")
+                .hasRole("USER_ACHETEUR")
+                .requestMatchers("/statistique/admin")
+                .hasRole("ADMIN")
                 .anyRequest().authenticated()
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -92,9 +93,7 @@ public class SpringSecurityConfig {
                 .logoutUrl("/auth/logout")
                 .addLogoutHandler(logoutHandler)
                 .logoutSuccessHandler(
-                    (request, response, authentication) ->
-                        SecurityContextHolder.clearContext()
-                );
+                        (request, response, authentication) -> SecurityContextHolder.clearContext());
         return http.build();
     }
 
@@ -113,14 +112,15 @@ public class SpringSecurityConfig {
     // @SuppressWarnings("deprecated")
     // @Bean
     // public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    //     http.csrf().disable().authorizeRequests()
-    //             .requestMatchers("/rest/auth/**", "/user/signup").permitAll()
-    //             .anyRequest().authenticated()
-    //             .and()
-    //             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-    //             .and()
-    //             .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class);
-    //     return http.build();
+    // http.csrf().disable().authorizeRequests()
+    // .requestMatchers("/rest/auth/**", "/user/signup").permitAll()
+    // .anyRequest().authenticated()
+    // .and()
+    // .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+    // .and()
+    // .addFilterBefore(jwtAuthorizationFilter,
+    // UsernamePasswordAuthenticationFilter.class);
+    // return http.build();
     // }
 
     @Bean

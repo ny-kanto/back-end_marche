@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.ArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -15,7 +13,6 @@ import org.springframework.stereotype.Service;
 import com.marche.marche.modele.Utilisateur;
 import com.marche.marche.repository.PersonneRepository;
 import com.marche.marche.repository.UtilisateurRepository;
-
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
@@ -43,10 +40,10 @@ public class CustomUserDetailsService implements UserDetailsService {
         return userDetails;
     }
 
-    private List<GrantedAuthority> getGrantedAuthorities(String role) {
-        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-        authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
-        return authorities;
-    }
+    // private List<GrantedAuthority> getGrantedAuthorities(String role) {
+    // List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+    // authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
+    // return authorities;
+    // }
 
 }

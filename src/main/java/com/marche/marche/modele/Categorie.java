@@ -35,7 +35,7 @@ public class Categorie {
 
     @ManyToOne
     @JoinColumn(name = "id_type_produit", referencedColumnName = "id")
-    private TypeProduit type_produit;
+    private TypeProduit typeProduit;
 
     public String getNom() {
         return Utils.capitalizeFirstLetter(nom);
