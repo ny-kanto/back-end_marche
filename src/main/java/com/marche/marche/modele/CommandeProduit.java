@@ -9,6 +9,7 @@ import jakarta.persistence.IdClass;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
@@ -36,4 +37,20 @@ public class CommandeProduit {
 
     @Column(name = "prix_unitaire")
     private double prixUnitaire;
+
+    @Column(name = "status_commande")
+    private int statusCommande;
+
+    @Transient
+    private double total;
+
+    public CommandeProduit(Commande commande, Produit produit, double quantite, double prixUnitaire,
+            int statusCommande) {
+        this.commande = commande;
+        this.produit = produit;
+        this.quantite = quantite;
+        this.prixUnitaire = prixUnitaire;
+        this.statusCommande = statusCommande;
+    }
+
 }

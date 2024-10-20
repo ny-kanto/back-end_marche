@@ -33,8 +33,10 @@ public class PanierService {
     }
 
     public void deleteProduitPanier(Panier panier) {
-        ppr.deleteByPanier(panier);
+        List<ProduitPanier> produits = ppr.findByPanier(panier);
+        ppr.deleteAll(produits);
     }
+    
 
     public List<ProduitPanier> listProduitPanier(Panier panier) {
         return ppr.findByPanierOrderByProduit(panier);

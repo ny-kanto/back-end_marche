@@ -77,7 +77,7 @@ public class StockController {
 
     // CONTROLLEUR D'AJOUT DE PRODUIT DU VENDEUR
     @GetMapping("/etat")
-    public ResponseEntity<APIResponse> entreeProduct(@RequestHeader(name = "Authorization") String authorizationHeader,
+    public ResponseEntity<APIResponse> etatStock(@RequestHeader(name = "Authorization") String authorizationHeader,
             @RequestParam(defaultValue = "15") int nbrParPage,
             @RequestParam(defaultValue = "1") int noPage) {
         try {
@@ -93,7 +93,7 @@ public class StockController {
 
             List<EtatStock> etatStock = es.getEtatStock(p.getId(), noPage, nbrParPage);
 
-            int totalPages = (int) Math.ceil((double) ps.countProduit() / nbrParPage);
+            int totalPages = (int) Math.ceil((double) ps.countProduit(p) / nbrParPage);
 
             List<Object> obj = new ArrayList<>();
             obj.add(etatStock);

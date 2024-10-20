@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -23,14 +25,19 @@ import com.marche.marche.modele.CommandeProduit;
 import com.marche.marche.modele.Personne;
 import com.marche.marche.modele.Produit;
 import com.marche.marche.modele.ProduitPhotos;
+import com.marche.marche.modele.Sortie;
 import com.marche.marche.modele.Utilisateur;
 import com.marche.marche.services.CommandeService;
 import com.marche.marche.services.PersonneService;
 import com.marche.marche.services.ProduitPhotosService;
+import com.marche.marche.services.ProduitService;
+import com.marche.marche.services.SortieService;
 import com.marche.marche.services.UtilisateurService;
 import com.marche.marche.utils.Utils;
 
 import io.jsonwebtoken.Claims;
+
+import java.sql.Timestamp;
 
 @RestController
 @RequestMapping("/commande")
@@ -46,14 +53,22 @@ public class CommandeController {
     private PersonneService pes;
 
     @Autowired
+    private ProduitService ps;
+
+    @Autowired
+    private SortieService ss;
+
+    @Autowired
     private UtilisateurService us;
 
     @Autowired
     private JwtUtil jwtUtil;
 
-    @GetMapping("/list")
-    public ResponseEntity<APIResponse> getAllCommande(@RequestHeader(name = "Authorization") String authorizationHeader,
-            @RequestParam(defaultValue = "5") int nbrParPage, @RequestParam(defaultValue = "1") int noPage) {
+    @GetMapping("/list-produit/{id_commande}")
+    public ResponseEntity<APIResponse> getAllCommandeProduit(
+            @RequestHeader(name = "Authorization") String authorizationHeader,
+            @RequestParam(defaultValue = "5") int nbrParPage, @RequestParam(defaultValue = "1") int noPage,
+            @RequestParam(defaultValue = "-1") int status, @PathVariable(name = "id_commande") int idCommande) {
         try {
             int idUtilisateur = 0;
             if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
@@ -65,10 +80,13 @@ public class CommandeController {
             List<Object> obj = new ArrayList<>();
             Utilisateur u = us.getUtilisateur(idUtilisateur);
             Personne p = pes.getPersonneByUtilisateur(u);
+            List<CommandeProduit> cp = new ArrayList<>();
 
-            List<CommandeProduit> cp = cos.listCommandeByVendeur(p, nbrParPage, noPage);
+            int totalPages = 0;
 
-            int totalPages = (int) Math.ceil((double) cos.countCommande(p.getId()) / nbrParPage);
+            Commande commande = cos.getCommandeById(idCommande);
+            cp = cos.listCommandeProduitByVendeur(p, commande, nbrParPage, noPage, status);
+            totalPages = (int) Math.ceil((double) cos.countCommandeProduit(p.getId(), idCommande, status) / nbrParPage);
 
             double totalGlobal = 0;
 
@@ -77,12 +95,11 @@ public class CommandeController {
             String mimeType = "";
             HashMap<Integer, Map<String, String>> produitData = new HashMap<>();
             Produit produit = null;
-            Commande commande = null;
-            
-            int count = cos.countCommande(idUtilisateur);
-            int countLivree = cos.countCommandeLivree(idUtilisateur);
-            int countNonLivree = cos.countCommandeNonLivree(idUtilisateur);
-            int countEnCours = cos.countCommandeEnCours(idUtilisateur);
+
+            int count = cos.countCommandeProduit(idUtilisateur, idCommande, -1);
+            int countLivree = cos.countCommandeProduit(idUtilisateur, idCommande, 11);
+            int countNonLivree = cos.countCommandeProduit(idUtilisateur, idCommande, 0);
+            int countEnCours = cos.countCommandeProduit(idUtilisateur, idCommande, 1);
 
             List<Map<String, Object>> produitsAvecTotal = new ArrayList<>();
             double total = 0;
@@ -96,6 +113,7 @@ public class CommandeController {
                 total = commandeProduit.getQuantite() * commandeProduit.getPrixUnitaire();
 
                 produitDetails = new HashMap<>();
+                produitDetails.put("id_commande", commande.getId());
                 produitDetails.put("id", produit.getId());
                 produitDetails.put("nom", produit.getNom());
                 produitDetails.put("prix", commandeProduit.getPrixUnitaire());
@@ -112,7 +130,7 @@ public class CommandeController {
                 produitDetails.put("prenom_acheteur", commande.getPersonne().getPrenom());
                 produitDetails.put("pseudo_vendeur", commande.getPersonne().getUtilisateur().getPseudo());
                 produitDetails.put("contact_acheteur", commande.getPersonne().getContact());
-                produitDetails.put("status", commande.getStatusCommande());
+                produitDetails.put("status", commandeProduit.getStatusCommande());
                 produitsAvecTotal.add(produitDetails);
 
                 totalGlobal += total;
@@ -145,8 +163,47 @@ public class CommandeController {
         }
     }
 
+    @GetMapping("/list")
+    public ResponseEntity<APIResponse> getAllCommande(@RequestHeader(name = "Authorization") String authorizationHeader,
+            @RequestParam(defaultValue = "10") int nbrParPage, @RequestParam(defaultValue = "1") int noPage) {
+        try {
+            int idUtilisateur = 0;
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                String token = authorizationHeader.substring(7);
+                Claims claims = jwtUtil.parseJwtClaims(token);
+                idUtilisateur = JwtUtil.getUserId(claims);
+            }
+
+            List<Object> obj = new ArrayList<>();
+            Utilisateur u = us.getUtilisateur(idUtilisateur);
+            Personne p = pes.getPersonneByUtilisateur(u);
+            List<Commande> commandes = new ArrayList<>();
+            List<Integer> idCommandeNonLivree = cos.idCommandeNonLivree(p.getId());
+            List<Integer> idCommandeEnCours = cos.idCommandeEnCours(p.getId());
+            List<CommandeProduit> cp2 = cos.listCommandeProduitByVendeur(p);
+            int totalPages = 0;
+
+            commandes = cos.listCommandeByVendeur(p, nbrParPage, noPage);
+            totalPages = (int) Math.ceil((double) cos.count(p.getId()) / nbrParPage);
+
+            obj.add(commandes);
+            obj.add(noPage);
+            obj.add(totalPages);
+            obj.add(idCommandeNonLivree);
+            obj.add(idCommandeEnCours);
+            obj.add(cp2);
+
+            APIResponse api = new APIResponse(null, obj);
+            return ResponseEntity.ok(api);
+        } catch (Exception e) {
+            e.printStackTrace();
+            APIResponse response = new APIResponse(e.getMessage(), null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
     @GetMapping("/count")
-    public ResponseEntity<APIResponse> getCountPanier(
+    public ResponseEntity<APIResponse> getCountCommande(
             @RequestHeader(name = "Authorization") String authorizationHeader) {
         try {
             int idUtilisateur = 0;
@@ -159,12 +216,66 @@ public class CommandeController {
             List<Object> obj = new ArrayList<>();
             Utilisateur u = us.getUtilisateur(idUtilisateur);
             Personne p = pes.getPersonneByUtilisateur(u);
-            int count = cos.countCommandeNonLivree(idUtilisateur);
-            count += cos.countCommandeEnCours(idUtilisateur);
+            // int count = cos.countCommande(p.getId(), 0);
+            // count += cos.countCommande(p.getId(), 1);
+
+            int count = cos.countCommandeNLAndEC(p.getId());
 
             obj.add(p);
             obj.add(u);
             obj.add(count);
+
+            APIResponse api = new APIResponse(null, obj);
+            return ResponseEntity.ok(api);
+        } catch (Exception e) {
+            e.printStackTrace();
+            APIResponse response = new APIResponse(e.getMessage(), null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @PutMapping("/update_status/{id_commande}/{id_produit}")
+    public ResponseEntity<APIResponse> updateStatus(
+            @RequestHeader(name = "Authorization") String authorizationHeader,
+            @PathVariable(name = "id_commande") int idCommande, @PathVariable(name = "id_produit") int idProduit,
+            @RequestParam int status) {
+        try {
+            int idUtilisateur = 0;
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                String token = authorizationHeader.substring(7);
+                Claims claims = jwtUtil.parseJwtClaims(token);
+                idUtilisateur = JwtUtil.getUserId(claims);
+            }
+
+            List<Object> obj = new ArrayList<>();
+            Utilisateur u = us.getUtilisateur(idUtilisateur);
+            Personne p = pes.getPersonneByUtilisateur(u);
+            Commande commande = cos.getCommandeById(idCommande);
+            Produit produit = ps.getProduit(idProduit);
+            CommandeProduit commandeProduit = cos.getCommandeProduitByCommandeAndProduit(commande, produit);
+
+            commandeProduit.setStatusCommande(status);
+
+            if (status == 1) {
+                Timestamp dateSortie = Timestamp.valueOf(commandeProduit.getCommande().getDateCommande().toString());
+                Sortie sortie = ss.getSortieByProduitAndQuantiteAndDateSortie(produit, commandeProduit.getQuantite(),
+                        dateSortie);
+
+                if (sortie == null) {
+                    sortie = new Sortie(commandeProduit.getQuantite(), dateSortie, produit);
+                    ss.saveSortie(sortie);
+                }
+            } else if (status == 0) {
+                Timestamp dateSortie = Timestamp.valueOf(commandeProduit.getCommande().getDateCommande().toString());
+                Sortie sortie = ss.getSortieByProduitAndQuantiteAndDateSortie(produit, commandeProduit.getQuantite(),
+                        dateSortie);
+                ss.deleteSortie(sortie);
+            }
+
+            cos.saveCommandeProduit(commandeProduit);
+
+            obj.add(p);
+            obj.add(commandeProduit);
 
             APIResponse api = new APIResponse(null, obj);
             return ResponseEntity.ok(api);

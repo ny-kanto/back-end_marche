@@ -20,5 +20,7 @@ public class EtatStock {
 
     private double sommeSortie;
 
+    private double sommeReserve;
+
     private double reste;
 }

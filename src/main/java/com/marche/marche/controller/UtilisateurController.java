@@ -1,8 +1,10 @@
 package com.marche.marche.controller;
 
 import java.sql.Date;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,10 +14,13 @@ import org.springframework.web.bind.annotation.*;
 import com.marche.marche.api.APIResponse;
 import com.marche.marche.authentification.JwtUtil;
 import com.marche.marche.modele.Personne;
+import com.marche.marche.modele.Produit;
 import com.marche.marche.modele.Role;
 import com.marche.marche.modele.TypeProduction;
 import com.marche.marche.modele.Utilisateur;
+import com.marche.marche.services.EvaluationService;
 import com.marche.marche.services.PersonneService;
+import com.marche.marche.services.ProduitService;
 import com.marche.marche.services.RoleService;
 import com.marche.marche.services.TypeProductionService;
 import com.marche.marche.services.UtilisateurService;
@@ -28,6 +33,12 @@ import io.jsonwebtoken.Claims;
 public class UtilisateurController {
     @Autowired
     private PersonneService ps;
+
+    @Autowired
+    private ProduitService prs;
+
+    @Autowired
+    private EvaluationService evs;
 
     @Autowired
     private UtilisateurService us;
@@ -51,7 +62,9 @@ public class UtilisateurController {
             @RequestParam("contact") String contact, @RequestParam("localisation") String localisation) {
 
         try {
-            Utilisateur u = new Utilisateur(pseudo, email, password);
+            LocalDate currentDate = LocalDate.now();
+            Date dateInscription = Date.valueOf(currentDate);
+            Utilisateur u = new Utilisateur(pseudo, email, password, dateInscription);
             us.saveUtilisateur(u);
             Role role = rs.getRoleById(idRole);
             TypeProduction tp = null;
@@ -75,9 +88,10 @@ public class UtilisateurController {
     @PostMapping("/new-admin")
     public ResponseEntity<APIResponse> signup(@RequestParam("pseudo") String pseudo,
             @RequestParam("email") String email, @RequestParam("password") String password) {
-
         try {
-            Utilisateur u = new Utilisateur(pseudo, email, password, 1);
+            LocalDate currentDate = LocalDate.now();
+            Date dateInscription = Date.valueOf(currentDate);
+            Utilisateur u = new Utilisateur(pseudo, email, password, dateInscription, 1);
             us.saveUtilisateur(u);
 
             APIResponse api = new APIResponse(null, u);
@@ -107,6 +121,120 @@ public class UtilisateurController {
 
             obj.add(p);
             obj.add(u);
+
+            APIResponse api = new APIResponse(null, obj);
+            return ResponseEntity.ok(api);
+        } catch (Exception e) {
+            e.printStackTrace();
+            APIResponse response = new APIResponse(e.getMessage(), null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @GetMapping("/list")
+    public ResponseEntity<APIResponse> getListUser(
+            @RequestHeader(name = "Authorization") String authorizationHeader) {
+        try {
+            int idUtilisateur = 0;
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                String token = authorizationHeader.substring(7);
+                Claims claims = jwtUtil.parseJwtClaims(token);
+                idUtilisateur = JwtUtil.getUserId(claims);
+            }
+
+            List<Object> obj = new ArrayList<>();
+            Utilisateur u = us.getUtilisateur(idUtilisateur);
+            Personne p = ps.getPersonneByUtilisateur(u);
+            // List<Personne> personnes = ps
+
+            obj.add(p);
+            obj.add(u);
+
+            APIResponse api = new APIResponse(null, obj);
+            return ResponseEntity.ok(api);
+        } catch (Exception e) {
+            e.printStackTrace();
+            APIResponse response = new APIResponse(e.getMessage(), null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @GetMapping("/profile-vendeur/{id_vendeur}")
+    public ResponseEntity<APIResponse> getProfileVendeur(
+            @RequestHeader(name = "Authorization") String authorizationHeader,
+            @PathVariable(name = "id_vendeur") int idVendeur) {
+        try {
+            int idUtilisateur = 0;
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                String token = authorizationHeader.substring(7);
+                Claims claims = jwtUtil.parseJwtClaims(token);
+                idUtilisateur = JwtUtil.getUserId(claims);
+            }
+
+            List<Object> obj = new ArrayList<>();
+            Utilisateur u = us.getUtilisateur(idUtilisateur);
+            Personne p = ps.getPersonneByUtilisateur(u);
+
+            Personne p2 = ps.getPersonneById(idVendeur);
+
+            List<Produit> produits = prs.getAllProduitsByPersonne(p2);
+            List<Produit> produits2 = prs.getProduitNoteStockByPersonne(p2);
+
+            double totalNotes = 0;
+            int totalEvaluations = 0;
+            int totalCount;
+            double weightedSum = 0;
+            Map<Integer, Long> evaluationCountNote = null;
+            for (Produit produit : produits) {
+                evaluationCountNote = evs.getEvaluationCountsByNote(produit);
+                totalCount = 0;
+                weightedSum = 0;
+
+                for (Map.Entry<Integer, Long> entry : evaluationCountNote.entrySet()) {
+                    totalCount += entry.getValue();
+                    weightedSum += entry.getKey() * entry.getValue();
+                }
+
+                if (totalCount > 0) {
+                    totalNotes += weightedSum;
+                    totalEvaluations += totalCount;
+                }
+            }
+
+            double noteMoyenne = totalEvaluations > 0 ? totalNotes / totalEvaluations : 0;
+
+            obj.add(p2);
+            obj.add(produits2);
+            obj.add(noteMoyenne);
+
+            APIResponse api = new APIResponse(null, obj);
+            return ResponseEntity.ok(api);
+        } catch (Exception e) {
+            e.printStackTrace();
+            APIResponse response = new APIResponse(e.getMessage(), null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @GetMapping("/profile-acheteur/{id_acheteur}")
+    public ResponseEntity<APIResponse> getProfileAcheteur(
+            @RequestHeader(name = "Authorization") String authorizationHeader,
+            @PathVariable(name = "id_acheteur") int idAcheteur) {
+        try {
+            int idUtilisateur = 0;
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                String token = authorizationHeader.substring(7);
+                Claims claims = jwtUtil.parseJwtClaims(token);
+                idUtilisateur = JwtUtil.getUserId(claims);
+            }
+
+            List<Object> obj = new ArrayList<>();
+            Utilisateur u = us.getUtilisateur(idUtilisateur);
+            Personne p = ps.getPersonneByUtilisateur(u);
+
+            Personne p2 = ps.getPersonneById(idAcheteur);
+
+            obj.add(p2);
 
             APIResponse api = new APIResponse(null, obj);
             return ResponseEntity.ok(api);

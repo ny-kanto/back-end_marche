@@ -320,6 +320,30 @@ public class ProduitService {
         return countProduit;
     }
 
+    public int countProduit(Personne p) {
+        int countProduit = 0;
+        try {
+            Connection c = dataSource.getConnection();
+            String sql = "SELECT count(id) as countProduit FROM produit where id_personne = ?";
+
+            PreparedStatement ps = c.prepareStatement(sql);
+            ps.setInt(1, p.getId());
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                countProduit = rs.getInt("countProduit");
+            }
+
+            rs.close();
+            ps.close();
+            c.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return countProduit;
+    }
+
     public int countProduit() {
         int countProduit = 0;
         try {
@@ -337,8 +361,8 @@ public class ProduitService {
             ps.close();
             c.close();
 
-        } catch (SQLException p) {
-            p.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return countProduit;
     }
@@ -363,7 +387,7 @@ public class ProduitService {
         List<Produit> produit = new ArrayList<>();
         try {
             Connection c = dataSource.getConnection();
-            String sql = "SELECT * FROM v_produit_note p ORDER BY " + column + " " + ((sort % 2) == 1 ? "ASC" : "DESC")
+            String sql = "SELECT * FROM v_produit_note_stock p ORDER BY " + column + " " + ((sort % 2) == 1 ? "ASC" : "DESC")
                     + " LIMIT ? OFFSET ?";
 
             System.out.println("sql : " + sql);
@@ -397,6 +421,7 @@ public class ProduitService {
                 p.setUnite(u);
                 p.setPersonne(personne);
                 p.setAverageRating(rs.getDouble("note_produit"));
+                p.setStock(rs.getDouble("reste_stock"));
                 produit.add(p);
             }
 
@@ -412,7 +437,7 @@ public class ProduitService {
 
     public String sqlUser(String nom, int idLocalisation, int idTypeProduction, int disponibilite, double prixMin,
             double prixMax, int idCategorie, int idTypeProduit, int noPage, int nbParPage, String column, int sort) {
-        String sql = "SELECT * FROM v_produit_note p JOIN categorie c ON c.id = p.id_categorie JOIN personne pe ON pe.id = p.id_personne WHERE 1 = 1 ";
+        String sql = "SELECT * FROM v_produit_note_stock p JOIN categorie c ON c.id = p.id_categorie JOIN personne pe ON pe.id = p.id_personne WHERE 1 = 1 ";
 
         if (nom != null && !nom.isEmpty()) {
             sql += "AND LOWER(p.nom_produit) LIKE ? ";
@@ -440,6 +465,10 @@ public class ProduitService {
 
         if (idTypeProduit > 0) {
             sql += "AND c.id_type_produit = ? ";
+        }
+
+        if (disponibilite > 0) {
+            sql += "AND p.reste_stock > 0 ";
         }
 
         sql += "ORDER BY " + column + " " + ((sort % 2) == 1 ? "ASC" : "DESC") + " LIMIT ? OFFSET ? ";
@@ -527,6 +556,7 @@ public class ProduitService {
                 p.setUnite(u);
                 p.setPersonne(personne);
                 p.setAverageRating(rs.getDouble("note_produit"));
+                p.setStock(rs.getDouble("reste_stock"));
                 produit.add(p);
             }
 
@@ -545,7 +575,7 @@ public class ProduitService {
         int count = 0;
         try {
             Connection c = dataSource.getConnection();
-            String sql = "SELECT COUNT(*) FROM v_produit_note p JOIN categorie c ON c.id = p.id_categorie " +
+            String sql = "SELECT COUNT(*) FROM v_produit_note_stock p JOIN categorie c ON c.id = p.id_categorie " +
                     "JOIN personne pe ON pe.id = p.id_personne WHERE 1 = 1 ";
 
             if (nom != null && !nom.isEmpty()) {
@@ -574,6 +604,10 @@ public class ProduitService {
 
             if (idTypeProduit > 0) {
                 sql += "AND c.id_type_produit = ? ";
+            }
+            
+            if (disponibilite > 0) {
+                sql += "AND p.reste_stock > 0 ";
             }
 
             PreparedStatement ps = c.prepareStatement(sql);
@@ -637,5 +671,51 @@ public class ProduitService {
 
     public double produitPrixMax() {
         return pr.produitMaxPrice();
+    }
+
+    public List<Produit> getProduitNoteStockByPersonne(Personne personne) {
+        List<Produit> produit = new ArrayList<>();
+        try {
+            Connection c = dataSource.getConnection();
+            String sql = "SELECT * FROM v_produit_note_stock p WHERE p.id_personne = ?";
+
+            PreparedStatement ps = c.prepareStatement(sql);
+            ps.setInt(1, personne.getId());
+            ResultSet rs = ps.executeQuery();
+
+            Produit p;
+            Categorie cat;
+            Unite u;
+            Region r;
+            while (rs.next()) {
+                p = new Produit();
+                cat = cr.findById(rs.getInt("id_categorie")).get();
+                u = ur.findById(rs.getInt("id_unite")).get();
+                r = rr.findById(rs.getInt("id_region")).get();
+                p.setId(rs.getInt("id_produit"));
+                p.setNom(rs.getString("nom_produit"));
+                p.setDescription(rs.getString("description_produit"));
+                p.setPrix(rs.getDouble("prix_produit"));
+                p.setMinCommande(rs.getDouble("min_commande_produit"));
+                p.setDateAjout(rs.getTimestamp("date_ajout_produit"));
+                p.setDelaisLivraison(rs.getInt("delais_livraison_produit"));
+                p.setLocalisation(rs.getString("localisation_produit"));
+                p.setCategorie(cat);
+                p.setRegion(r);
+                p.setUnite(u);
+                p.setPersonne(personne);
+                p.setAverageRating(rs.getDouble("note_produit"));
+                p.setStock(rs.getDouble("reste_stock"));
+                produit.add(p);
+            }
+
+            rs.close();
+            ps.close();
+            c.close();
+
+        } catch (SQLException p) {
+            p.printStackTrace();
+        }
+        return produit;
     }
 }

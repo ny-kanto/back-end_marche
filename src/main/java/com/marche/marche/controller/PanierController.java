@@ -1,5 +1,10 @@
 package com.marche.marche.controller;
 
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
@@ -23,6 +28,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.marche.marche.api.APIResponse;
 import com.marche.marche.authentification.JwtUtil;
+import com.marche.marche.modele.Commande;
+import com.marche.marche.modele.CommandeProduit;
 import com.marche.marche.modele.EtatStock;
 import com.marche.marche.modele.Panier;
 import com.marche.marche.modele.Personne;
@@ -31,13 +38,18 @@ import com.marche.marche.modele.ProduitPanier;
 import com.marche.marche.modele.ProduitPhotos;
 import com.marche.marche.modele.Utilisateur;
 import com.marche.marche.modele.response.ErrorRes;
+import com.marche.marche.services.CommandeService;
 import com.marche.marche.services.EntreeService;
+import com.marche.marche.services.MessageService;
+import com.marche.marche.services.NotificationService;
 import com.marche.marche.services.PanierService;
+import com.marche.marche.services.PaymentService;
 import com.marche.marche.services.PersonneService;
 import com.marche.marche.services.ProduitPhotosService;
 import com.marche.marche.services.ProduitService;
 import com.marche.marche.services.UtilisateurService;
 import com.marche.marche.utils.Utils;
+import com.stripe.model.checkout.Session;
 
 import io.jsonwebtoken.Claims;
 
@@ -52,6 +64,12 @@ public class PanierController {
     private ProduitService pros;
 
     @Autowired
+    private NotificationService notificationService;
+
+    @Autowired
+    private PaymentService paymentService;
+
+    @Autowired
     private ProduitPhotosService pps;
 
     @Autowired
@@ -62,6 +80,12 @@ public class PanierController {
 
     @Autowired
     private EntreeService es;
+
+    @Autowired
+    private CommandeService cs;
+
+    @Autowired
+    private MessageService ms;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -165,6 +189,7 @@ public class PanierController {
                 produitDetails.put("prix", produit.getPrix());
                 produitDetails.put("quantite", produitPanier.getQuantite());
                 produitDetails.put("total", total);
+                produitDetails.put("id_vendeur", produit.getPersonne().getId());
                 produitDetails.put("nom_vendeur", produit.getPersonne().getNom());
                 produitDetails.put("prenom_vendeur", produit.getPersonne().getPrenom());
                 produitDetails.put("pseudo_vendeur", produit.getPersonne().getUtilisateur().getPseudo());
@@ -183,9 +208,14 @@ public class PanierController {
                 }
             }
 
+            double tva = totalGlobal * 0.2;
+            double ttc = totalGlobal + tva;
+
             obj.add(produitsAvecTotal);
             obj.add(produitData);
             obj.add(totalGlobal);
+            obj.add(tva);
+            obj.add(ttc);
 
             APIResponse api = new APIResponse(null, obj);
             return ResponseEntity.ok(api);
@@ -218,9 +248,11 @@ public class PanierController {
             }
 
             int count = pas.countProduitPanier(panier);
+            int messageNonLus = ms.messageNonLusAcheteur(p, 0);
 
             obj.add(count);
             obj.add(p);
+            obj.add(messageNonLus);
 
             APIResponse api = new APIResponse(null, obj);
             return ResponseEntity.ok(api);
@@ -307,4 +339,70 @@ public class PanierController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
+
+    @PostMapping("/save-commande")
+    public ResponseEntity<APIResponse> saveCommande(@RequestHeader(name = "Authorization") String authorizationHeader) {
+        try {
+            int idUtilisateur = 0;
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                String token = authorizationHeader.substring(7);
+                Claims claims = jwtUtil.parseJwtClaims(token);
+                idUtilisateur = JwtUtil.getUserId(claims);
+            }
+
+            Utilisateur u = us.getUtilisateur(idUtilisateur);
+            Personne p = pes.getPersonneByUtilisateur(u);
+            Panier panier = pas.getPanierByPersonne(p);
+
+            List<ProduitPanier> pp = pas.listProduitPanier(panier);
+
+            Commande commande;
+            Timestamp dateCommande = Timestamp.from(Instant.now());
+            double montantTotal = 0;
+
+            for (int i = 0; i < pp.size(); i++) {
+                montantTotal += (pp.get(i).getQuantite() * pp.get(i).getProduit().getPrix());
+            }
+
+            double tva = montantTotal * 0.2;
+            double ttc = montantTotal + tva;
+
+            LocalDate dateCommandeLocalDate = dateCommande.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+            String dateFormatee = dateCommandeLocalDate.format(formatter);
+
+            String adresseLivraison = "Antananarivo";
+            String numClient = "C" + p.getId() + "/" + dateFormatee;
+
+            Long amount = (long) ttc;
+            // PaymentIntent paymentIntent = paymentService.createPaymentIntent(amount);
+            Session session = paymentService.createCheckoutSession(amount);
+
+            // commande = new Commande(dateCommande, ttc, adresseLivraison, numClient, p);
+            // cs.saveCommande(commande);
+
+            // CommandeProduit commandeProduit;
+            // for (int i = 0; i < pp.size(); i++) {
+            //     commandeProduit = new CommandeProduit(commande, pp.get(i).getProduit(), pp.get(i).getQuantite(),
+            //             pp.get(i).getProduit().getPrix(), 0);
+            //     cs.saveCommandeProduit(commandeProduit);
+            // }
+
+            // for (ProduitPanier produitPanier : pp) {
+            // notificationService.sendNotification("/topic/vendeur/" +
+            // produitPanier.getProduit().getPersonne().getId(),
+            // "Nouvelle commande pour votre produit !");
+            // }
+
+            // pas.deleteProduitPanier(panier);
+
+            APIResponse api = new APIResponse(null, session.getId());
+            return ResponseEntity.ok(api);
+        } catch (Exception e) {
+            APIResponse response = new APIResponse(e.getMessage(), null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
 }

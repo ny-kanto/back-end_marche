@@ -11,6 +11,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
@@ -41,13 +42,32 @@ public class Commande {
     @Column(name = "adresse_livraison")
     private String adresseLivraison;
 
-    @Column(name = "status_commande")
-    private int statusCommande;
-
     @Column(name = "num_client")
     private String numClient;
 
     @ManyToOne
     @JoinColumn(name = "id_personne", referencedColumnName = "id")
     private Personne personne;
+
+    @Transient
+    private int messageNonLus;
+    
+    public Commande(Timestamp dateCommande, double montantTotal, String adresseLivraison, String numClient,
+            Personne personne) {
+        this.dateCommande = dateCommande;
+        this.montantTotal = montantTotal;
+        this.adresseLivraison = adresseLivraison;
+        this.numClient = numClient;
+        this.personne = personne;
+    }
+
+    public Commande(int id, Timestamp dateCommande, double montantTotal, String adresseLivraison, String numClient,
+            Personne personne) {
+        this.id = id;
+        this.dateCommande = dateCommande;
+        this.montantTotal = montantTotal;
+        this.adresseLivraison = adresseLivraison;
+        this.numClient = numClient;
+        this.personne = personne;
+    }
 }

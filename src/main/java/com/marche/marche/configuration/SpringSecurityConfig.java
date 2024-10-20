@@ -77,12 +77,12 @@ public class SpringSecurityConfig {
                 .authorizeRequests()
                 .requestMatchers("/rest/auth/**", "/user/signup", "/type-production/all", "/user/info", "/user/new-admin").permitAll()
                 .requestMatchers("/produit/save", "/produit/all", "/produit/update", "/produit/get", "/produit/delete",
-                        "/stock/**", "/statistique/all", "/commande/**", "/message/save-message", "/message/list")
+                        "/stock/**", "/statistique/all", "/commande/**", "/message/**", "/user/profile-vendeur", "/user/profile-acheteur")
                 .hasRole("USER_VENDEUR")
                 .requestMatchers("/produit/user-all", "/panier/**", "/produit/get-user", "/evaluation/**",
-                        "/commentaire/**", "/message/save-message", "/message/list")
+                        "/commentaire/**", "/conversation/**", "/user/profile-acheteur", "/user/profile-vendeur")
                 .hasRole("USER_ACHETEUR")
-                .requestMatchers("/statistique/admin")
+                .requestMatchers("/statistique/admin", "/user/list")
                 .hasRole("ADMIN")
                 .anyRequest().authenticated()
                 .and()

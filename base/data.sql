@@ -146,90 +146,97 @@ INSERT INTO PRODUIT (ID, NOM, DESCRIPTION, PRIX, MIN_COMMANDE, DELAIS_LIVRAISON,
 (NEXTVAL('produit_seq'),'Cire d''abeille', 'Description de la cire d''abeille', 5.0, 1, 3, 9, 5, 1), -- Gramme
 (NEXTVAL('produit_seq'),'Propolis', 'Description de la propolis', 12.0, 1, 3, 9, 5, 1); -- Gramme
 
+INSERT INTO COMMANDE (ID, ADRESSE_LIVRAISON, DATE_COMMANDE, NUM_CLIENT, ID_PERSONNE) VALUES
+(NEXTVAL('commande_seq'), 'Antananarivo', '2024-09-01', 'C2/01092024', 2),
+(NEXTVAL('commande_seq'), 'Fianarantsoa', '2024-09-02', 'C2/02092024', 2),
+(NEXTVAL('commande_seq'), 'Mahajanga', '2024-09-03', 'C2/03092024', 2),
+(NEXTVAL('commande_seq'), 'Toamasina', '2024-09-04', 'C2/04092024', 2),
+(NEXTVAL('commande_seq'), 'Antsirabe', '2024-09-05', 'C2/05092024', 2),
+(NEXTVAL('commande_seq'), 'Toliara', '2024-09-06', 'C2/06092024', 2),
+(NEXTVAL('commande_seq'), 'Antananarivo', '2024-09-07', 'C2/07092024', 2),
+(NEXTVAL('commande_seq'), 'Fianarantsoa', '2024-09-08', 'C2/08092024', 2),
+(NEXTVAL('commande_seq'), 'Mahajanga', '2024-09-09', 'C2/09092024', 2),
+(NEXTVAL('commande_seq'), 'Toamasina', '2024-09-10', 'C2/10092024', 2),
+(NEXTVAL('commande_seq'), 'Antananarivo', '2023-01-15', 'C2/15012023', 2),
+(NEXTVAL('commande_seq'), 'Fianarantsoa', '2023-02-20', 'C2/20022023', 2),
+(NEXTVAL('commande_seq'), 'Mahajanga', '2023-03-25', 'C2/25032023', 2),
+(NEXTVAL('commande_seq'), 'Toamasina', '2023-04-05', 'C2/04052023', 2),
+(NEXTVAL('commande_seq'), 'Antsirabe', '2022-05-10', 'C2/10052022', 2),
+(NEXTVAL('commande_seq'), 'Toliara', '2022-06-22', 'C2/22062022', 2),
+(NEXTVAL('commande_seq'), 'Antananarivo', '2022-07-30', 'C2/30072022', 2),
+(NEXTVAL('commande_seq'), 'Fianarantsoa', '2021-08-18', 'C2/18082021', 2),
+(NEXTVAL('commande_seq'), 'Mahajanga', '2021-09-20', 'C2/20092021', 2),
+(NEXTVAL('commande_seq'), 'Toamasina', '2021-10-15', 'C2/15102021', 2);
 
-INSERT INTO COMMANDE (ID, ADRESSE_LIVRAISON, DATE_COMMANDE, NUM_CLIENT, STATUS_COMMANDE, ID_PERSONNE) VALUES
-(NEXTVAL('commande_seq'), 'Antananarivo', '2024-09-01', 'C001', 11, 2),
-(NEXTVAL('commande_seq'), 'Fianarantsoa', '2024-09-02', 'C002', 1, 2),
-(NEXTVAL('commande_seq'), 'Mahajanga', '2024-09-03', 'C003', 11, 2),
-(NEXTVAL('commande_seq'), 'Toamasina', '2024-09-04', 'C004', 0, 2),
-(NEXTVAL('commande_seq'), 'Antsirabe', '2024-09-05', 'C005', 11, 2),
-(NEXTVAL('commande_seq'), 'Toliara', '2024-09-06', 'C006', 11, 2),
-(NEXTVAL('commande_seq'), 'Antananarivo', '2024-09-07', 'C007', 11, 2),
-(NEXTVAL('commande_seq'), 'Fianarantsoa', '2024-09-08', 'C008', 1, 2),
-(NEXTVAL('commande_seq'), 'Mahajanga', '2024-09-09', 'C009', 11, 2),
-(NEXTVAL('commande_seq'), 'Toamasina', '2024-09-10', 'C010', 11, 2),
-(NEXTVAL('commande_seq'), 'Antananarivo', '2023-01-15', 'C011', 11, 2),
-(NEXTVAL('commande_seq'), 'Fianarantsoa', '2023-02-20', 'C012', 1, 2),
-(NEXTVAL('commande_seq'), 'Mahajanga', '2023-03-25', 'C013', 11, 2),
-(NEXTVAL('commande_seq'), 'Toamasina', '2023-04-05', 'C014', 0, 2),
-(NEXTVAL('commande_seq'), 'Antsirabe', '2022-05-10', 'C015', 11, 2),
-(NEXTVAL('commande_seq'), 'Toliara', '2022-06-22', 'C016', 11, 2),
-(NEXTVAL('commande_seq'), 'Antananarivo', '2022-07-30', 'C017', 11, 2),
-(NEXTVAL('commande_seq'), 'Fianarantsoa', '2021-08-18', 'C018', 1, 2),
-(NEXTVAL('commande_seq'), 'Mahajanga', '2021-09-20', 'C019', 11, 2),
-(NEXTVAL('commande_seq'), 'Toamasina', '2021-10-15', 'C020', 0, 2);
-
-INSERT INTO COMMANDE_PRODUIT (ID_COMMANDE, ID_PRODUIT, PRIX_UNITAIRE, QUANTITE) VALUES
-(1, 1, 4500, 10),
-(1, 3, 3500, 20),
-(2, 5, 4000, 15),
-(2, 8, 5000, 30),
-(3, 11, 2000, 25),
-(3, 8, 4000, 5),
-(4, 17, 4000, 24),
-(4, 5 , 3500, 5),
-(4, 19, 9000, 5),
-(5, 27, 5000, 5),
-(5, 24, 1500, 50),
-(6, 27, 2500, 30),
-(6, 29, 6000, 20),
-(7, 32, 1800, 10),
-(7, 33, 5600, 8),
-(8, 3, 3500, 25),
-(9, 5, 4000, 10),
-(9, 17, 4000, 20),
-(10, 8, 5000, 40),
-(10, 33, 3000, 10),
-(11, 2, 2500, 12),
-(11, 5, 3000, 20),
-(12, 19, 4000, 8), 
-(12, 11, 5000, 15),
-(13, 17, 2000, 5),
-(13, 19, 3000, 25),
-(14, 27, 2500, 20),
-(15, 21, 4000, 5),
-(15, 32, 6000, 3),
-(16, 8, 4000, 15),
-(16, 1, 6000, 3),
-(17, 11, 4000, 5),
-(17, 17, 6000, 3),
-(18, 24, 4000, 5),
-(18, 3, 6000, 3),
-(19, 33, 4000, 5),
-(19, 19, 6000, 3),
-(20, 32, 1800, 5);
+INSERT INTO COMMANDE_PRODUIT (ID_COMMANDE, ID_PRODUIT, PRIX_UNITAIRE, QUANTITE, STATUS_COMMANDE) VALUES
+(1, 1, 4500, 10, 11),
+(1, 3, 3500, 20, 11),
+(2, 5, 4000, 15, 1),
+(2, 8, 5000, 30, 1),
+(3, 11, 2000, 25, 11),
+(3, 8, 4000, 5, 11),
+(4, 17, 4000, 24, 0),
+(4, 5 , 3500, 5, 0),
+(4, 19, 9000, 5, 0),
+(5, 27, 5000, 5, 11),
+(5, 24, 1500, 50, 11),
+(6, 27, 2500, 30, 11),
+(6, 29, 6000, 20, 11),
+(7, 32, 1800, 10, 11),
+(7, 33, 5600, 8, 11),
+(8, 3, 3500, 25, 1),
+(9, 5, 4000, 10, 11),
+(9, 17, 4000, 20, 11),
+(10, 8, 5000, 40, 11),
+(10, 33, 3000, 10, 11),
+(11, 2, 2500, 12, 11),
+(11, 5, 3000, 20, 11),
+(12, 19, 4000, 8, 1), 
+(12, 11, 5000, 15, 1),
+(13, 17, 2000, 5, 11),
+(13, 19, 3000, 25, 11),
+(14, 27, 2500, 20, 0),
+(15, 21, 4000, 5, 11),
+(15, 32, 6000, 3, 11),
+(16, 8, 4000, 15, 11),
+(16, 1, 6000, 3, 11),
+(17, 11, 4000, 5, 11),
+(17, 17, 6000, 3, 11),
+(18, 24, 4000, 5, 1),
+(18, 3, 6000, 3, 1),
+(19, 33, 4000, 5, 11),
+(19, 19, 6000, 3, 11),
+(20, 32, 1800, 5, 0);
 
 INSERT INTO ENTREE (ID, DATE_ENTREE, QUANTITE, ID_PRODUIT) VALUES
-(1, '2020-08-25', 100, 2),  -- Oranges
-(2, '2020-08-25', 50, 3),   -- Tomates
-(3, '2020-09-01', 150, 1),  -- Pommes
-(4, '2020-09-02', 75, 4),   -- Carottes
-(5, '2020-09-02', 200, 5),  -- Salades
-(6, '2020-09-03', 100, 8),  -- Riz
-(7, '2020-09-04', 90, 11),  -- Menthe
-(8, '2020-09-05', 120, 17), -- Œufs de poule
-(9, '2020-09-06', 50, 19),  -- Bœuf
-(10, '2020-09-06', 200, 24), -- Lait
-(11, '2020-09-07', 180, 27), -- Beurre
-(12, '2020-09-08', 250, 29), -- Poissons d'eau douce
-(13, '2020-09-09', 100, 32), -- Coquillages
-(14, '2020-09-09', 300, 3),  -- Tomates
-(15, '2020-09-10', 400, 5),  -- Salades
-(16, '2020-09-10', 100, 17), -- Œufs de poule
-(17, '2020-09-11', 200, 8),  -- Riz
-(18, '2020-09-11', 50, 19),  -- Bœuf
-(19, '2020-09-12', 100, 21), -- Poulet
-(20, '2020-09-12', 150, 33); -- Miel
+(NEXTVAL('entree_seq'), '2020-08-25', 100, 2),
+(NEXTVAL('entree_seq'), '2020-08-25', 50, 3),
+(NEXTVAL('entree_seq'), '2020-09-01', 150, 1),
+(NEXTVAL('entree_seq'), '2020-09-02', 75, 4),
+(NEXTVAL('entree_seq'), '2020-09-02', 200, 5),
+(NEXTVAL('entree_seq'), '2020-09-03', 100, 8),
+(NEXTVAL('entree_seq'), '2020-09-04', 90, 11),
+(NEXTVAL('entree_seq'), '2020-09-05', 120, 17),
+(NEXTVAL('entree_seq'), '2020-09-06', 50, 19),
+(NEXTVAL('entree_seq'), '2020-09-06', 200, 24),
+(NEXTVAL('entree_seq'), '2020-09-07', 180, 27),
+(NEXTVAL('entree_seq'), '2020-09-08', 250, 29),
+(NEXTVAL('entree_seq'), '2020-09-09', 100, 32),
+(NEXTVAL('entree_seq'), '2020-09-09', 300, 3),
+(NEXTVAL('entree_seq'), '2020-09-10', 400, 5),
+(NEXTVAL('entree_seq'), '2020-09-10', 100, 17),
+(NEXTVAL('entree_seq'), '2020-09-11', 200, 8),
+(NEXTVAL('entree_seq'), '2020-09-11', 50, 19),
+(NEXTVAL('entree_seq'), '2020-09-12', 100, 21),
+(NEXTVAL('entree_seq'), '2020-09-12', 150, 33),
+(NEXTVAL('entree_seq'),	'2024-01-10', 100, 6),
+(NEXTVAL('entree_seq'),	'2024-01-10', 10000, 9),
+(NEXTVAL('entree_seq'),	'2024-01-10', 500, 18),
+(NEXTVAL('entree_seq'),	'2024-01-10', 20000, 20),
+(NEXTVAL('entree_seq'),	'2024-01-10', 50, 26),
+(NEXTVAL('entree_seq'),	'2024-01-10', 2000,	23),
+(NEXTVAL('entree_seq'),	'2024-01-10', 50, 7),
+(NEXTVAL('entree_seq'),	'2024-01-10', 1000, 34);
 
 INSERT INTO SORTIE (ID, DATE_SORTIE, QUANTITE, ID_PRODUIT) VALUES
 (NEXTVAL('sortie_seq'), '2024-09-01', 10, 1),
@@ -345,9 +352,9 @@ id_region = CASE
     ELSE id_region
 END;
 
-INSERT INTO CONVERSATION (ID, ID_VENDEUR, ID_ACHETEUR) VALUES
-(NEXTVAL('conversation_seq'), 1, 2);
+-- INSERT INTO CONVERSATION (ID, ID_VENDEUR, ID_ACHETEUR) VALUES
+-- (NEXTVAL('conversation_seq'), 1, 2);
 
-INSERT INTO MESSAGE (ID, ID_CONVERSATION, CONTENU_MESSAGE, DATE_MESSAGE, ID_EXPEDITEUR) VALUES
-(NEXTVAL('message_seq'), 1, 'Bonjour, vos commandes vont être livrées d''ici 1 jours', '2024-10-05 10:30:02', 1),
-(NEXTVAL('message_seq'), 1, 'Bonjour, merci pour votre service, je veux que la livraison de mes produits soient fait à Ampefiloha', '2024-10-05 10:35:00', 2);
+-- INSERT INTO MESSAGE (ID, ID_CONVERSATION, CONTENU_MESSAGE, DATE_MESSAGE, ID_EXPEDITEUR) VALUES
+-- (NEXTVAL('message_seq'), 1, 'Bonjour, vos commandes vont être livrées d''ici 1 jours', '2024-10-05 10:30:02', 1),
+-- (NEXTVAL('message_seq'), 1, 'Bonjour, merci pour votre service, je veux que la livraison de mes produits soient fait à Ampefiloha', '2024-10-05 10:35:00', 2);

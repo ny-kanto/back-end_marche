@@ -75,6 +75,9 @@ public class Produit {
     @Transient
     private boolean isNew;
 
+    @Transient
+    private double stock;
+
     public Produit(String nom, String description, double prix, double minCommande, int delaisLivraison,
             Categorie categorie, Personne personne, Unite unite, Timestamp dateAjout, String localisation, Region region) {
         this.nom = nom;

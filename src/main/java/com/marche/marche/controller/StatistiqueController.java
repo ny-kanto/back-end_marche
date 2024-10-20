@@ -72,7 +72,7 @@ public class StatistiqueController {
             List<Statistique> statistiques = new ArrayList<>();
             List<Integer> dateAnnee = ss.getDateCommandeAnnee(p);
 
-            double totalVente = ss.getTotalVentes();
+            double totalVente = ss.getTotalVentes(p);
 
             System.out.println("annee : " + annee);
             System.out.println("personne : " + p.getNom());

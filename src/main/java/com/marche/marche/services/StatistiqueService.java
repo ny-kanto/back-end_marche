@@ -57,7 +57,7 @@ public class StatistiqueService {
                     "\tON CP.ID_PRODUIT = P.ID OR P.ID IS NULL\r\n" + //
                     "WHERE\r\n" + //
                     "\tMA.ANNEE = ?\r\n" + //
-                    "    AND ((C.STATUS_COMMANDE >= 1) OR P.ID IS NULL OR C.ID IS NULL)\r\n" + //
+                    "    AND ((CP.STATUS_COMMANDE >= 1) OR P.ID IS NULL OR C.ID IS NULL)\r\n" + //
                     "GROUP BY\r\n" + //
                     "    P.ID,\r\n" + //
                     "    P.ID_UNITE,\r\n" + //
@@ -109,9 +109,15 @@ public class StatistiqueService {
                     "        ANNEE_DISTINCTE\r\n" + //
                     ")\r\n" + //
                     "SELECT\r\n" + //
-                    "    COALESCE(SUM(CP.PRIX_UNITAIRE * CP.QUANTITE), 0) AS TOTAL_VENTES,\r\n" + //
-                    "    MA.MOIS                                          AS MOIS,\r\n" + //
-                    "    MA.ANNEE                                         AS ANNEE\r\n" + //
+                    "    COALESCE(SUM(\r\n" + //
+                    "        CASE\r\n" + //
+                    "            WHEN P.ID_PERSONNE = ? THEN\r\n" + //
+                    "                CP.PRIX_UNITAIRE * CP.QUANTITE\r\n" + //
+                    "            ELSE\r\n" + //
+                    "                0\r\n" + //
+                    "        END), 0) AS TOTAL_VENTES,\r\n" + //
+                    "    MA.MOIS      AS MOIS,\r\n" + //
+                    "    MA.ANNEE     AS ANNEE\r\n" + //
                     "FROM\r\n" + //
                     "    MOIS_ANNEE       MA\r\n" + //
                     "    LEFT JOIN COMMANDE C\r\n" + //
@@ -119,23 +125,22 @@ public class StatistiqueService {
                     "    AND EXTRACT(YEAR FROM C.DATE_COMMANDE) = MA.ANNEE\r\n" + //
                     "    LEFT JOIN COMMANDE_PRODUIT CP\r\n" + //
                     "    ON CP.ID_COMMANDE = C.ID\r\n" + //
+                    "    AND CP.STATUS_COMMANDE >= 1\r\n" + //
                     "    LEFT JOIN PRODUIT P\r\n" + //
                     "    ON CP.ID_PRODUIT = P.ID\r\n" + //
                     "WHERE\r\n" + //
-                    "    MA.ANNEE = ? \r\n" + //
-                    "    AND ((C.STATUS_COMMANDE >= 1 AND P.ID_PERSONNE = ?) OR C.ID IS NULL OR P.ID IS NULL)\r\n" + //
+                    "    MA.ANNEE = ?\r\n" + //
                     "GROUP BY\r\n" + //
                     "    MA.MOIS,\r\n" + //
                     "    MA.ANNEE\r\n" + //
                     "ORDER BY\r\n" + //
                     "    MA.ANNEE,\r\n" + //
-                    "    MA.MOIS;\r\n" + //
-                    "";
+                    "    MA.MOIS;";
 
             System.out.println("sql : " + sql);
             PreparedStatement ps = c.prepareStatement(sql);
-            ps.setInt(1, annee);
-            ps.setInt(2, personne.getId());
+            ps.setInt(1, personne.getId());
+            ps.setInt(2, annee);
             ResultSet rs = ps.executeQuery();
 
             Statistique st;
@@ -184,7 +189,7 @@ public class StatistiqueService {
                     "    LEFT JOIN PRODUIT P\r\n" + //
                     "    ON CP.ID_PRODUIT = P.ID\r\n" + //
                     "WHERE\r\n" + //
-                    "    C.STATUS_COMMANDE >= 1\r\n" + //
+                    "    CP.STATUS_COMMANDE >= 1\r\n" + //
                     "    AND P.ID_PERSONNE = ?\r\n" + //
                     "    OR C.ID IS NULL\r\n" + //
                     "GROUP BY\r\n" + //
@@ -213,20 +218,24 @@ public class StatistiqueService {
         return dateAnnee;
     }
 
-    public double getTotalVentes() {
+    public double getTotalVentes(Personne personne) {
         double totalVente = 0;
         try {
             Connection c = dataSource.getConnection();
             String sql = "SELECT\r\n" + //
-                    "    SUM(CP.PRIX_UNITAIRE * CP.QUANTITE) AS TOTAL_VENTES\r\n" + //
+                    "    COALESCE(SUM(CP.PRIX_UNITAIRE * CP.QUANTITE), 0) AS TOTAL_VENTES\r\n" + //
                     "FROM\r\n" + //
                     "    COMMANDE_PRODUIT CP\r\n" + //
-                    "    JOIN COMMANDE C ON CP.ID_COMMANDE = C.ID\r\n" + //
+                    "    JOIN COMMANDE C\r\n" + //
+                    "    ON CP.ID_COMMANDE = C.ID\r\n" + //
+                    "    JOIN PRODUIT P\r\n" + //
+                    "    ON CP.ID_PRODUIT = P.ID\r\n" + //
                     "WHERE\r\n" + //
-                    "    C.STATUS_COMMANDE >= 1;\r\n" + //
-                    "";
+                    "    CP.STATUS_COMMANDE >= 1\r\n" + //
+                    "    AND P.ID_PERSONNE = ?;";
 
             PreparedStatement ps = c.prepareStatement(sql);
+            ps.setInt(1, personne.getId());
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
@@ -303,7 +312,7 @@ public class StatistiqueService {
         List<StatistiqueAdmin> statistiques = new ArrayList<>();
         try {
             Connection c = dataSource.getConnection();
-            String sql = "SELECT * FROM TOTAL_VENTES_PAR_REGION ORDER BY total_ventes DESC";
+            String sql = "SELECT * FROM TOTAL_VENTES_PAR_REGION ORDER BY TOTAL_VENTES DESC";
 
             System.out.println("sql : " + sql);
             PreparedStatement ps = c.prepareStatement(sql);

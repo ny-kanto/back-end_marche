@@ -41,4 +41,10 @@ public class Sortie {
     @ManyToOne
     @JoinColumn(name = "id_produit", referencedColumnName = "id")
     private Produit produit;
+    
+    public Sortie(double quantite, Timestamp dateSortie, Produit produit) {
+        this.quantite = quantite;
+        this.dateSortie = dateSortie;
+        this.produit = produit;
+    }
 }

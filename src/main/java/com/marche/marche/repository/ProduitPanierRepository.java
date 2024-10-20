@@ -32,4 +32,6 @@ public interface ProduitPanierRepository extends JpaRepository<ProduitPanier, Pr
     @Query("UPDATE ProduitPanier pp SET pp.quantite = :quantite WHERE pp.panier = :panier AND pp.produit = :produit")
     void updateByPanierAndProduit(@Param("quantite") double quantite, @Param("panier") Panier panier,
             @Param("produit") Produit produit);
+
+    List<ProduitPanier> findByPanier(Panier panier);
 }

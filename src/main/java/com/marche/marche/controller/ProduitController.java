@@ -206,7 +206,7 @@ public class ProduitController {
             if (nom.equals("") && prixMin == 0.0 && prixMax == 0.0 && idUnite == 0 && idCategorie == 0
                     && idTypeProduit == 0) {
                 produit = ps.getProduitPerPage(p.getId(), noPage, nbrParPage, column, sort);
-                totalPages = (int) Math.ceil((double) ps.countProduit() / nbrParPage);
+                totalPages = (int) Math.ceil((double) ps.countProduit(p) / nbrParPage);
             } else {
                 produit = ps.getProduitFiltre(p.getId(), nom, prixMin, prixMax, idUnite, idCategorie, idTypeProduit,
                         noPage, nbrParPage, column, sort);
@@ -337,7 +337,7 @@ public class ProduitController {
             @RequestParam(defaultValue = "") String nom,
             @RequestParam(name = "localisation", defaultValue = "0") int idLocalisation,
             @RequestParam(name = "type_production", defaultValue = "0") int idTypeProduction,
-            @RequestParam(defaultValue = "1") int disponibilite,
+            @RequestParam(defaultValue = "0") int disponibilite,
             @RequestParam(name = "prix_min", defaultValue = "0.0") double prixMin,
             @RequestParam(name = "prix_max", defaultValue = "0.0") double prixMax,
             @RequestParam(name = "categorie", defaultValue = "0") int idCategorie,
@@ -362,7 +362,7 @@ public class ProduitController {
             List<Region> regions = rs.getAll();
             int totalPages = 0;
 
-            if (nom.equals("") && idLocalisation == 0 && idTypeProduction == 0 && disponibilite == 1
+            if (nom.equals("") && idLocalisation == 0 && idTypeProduction == 0 && disponibilite == 0
                     && prixMin == 0.0 && prixMax == 0.0 && idCategorie == 0 && idTypeProduit == 0) {
                 produits = ps.getProduitUserPerPage(noPage, nbrParPage, column, sort);
                 totalPages = (int) Math.ceil((double) ps.countProduit() / nbrParPage);
@@ -493,9 +493,7 @@ public class ProduitController {
                 commentaireMap.put("contenuCommentaire", commentaire.getContenuCommentaire());
                 commentaireMap.put("personne", commentaire.getPersonne());
                 commentaireMap.put("dateCommentaire",
-                        commentaire.getDateCommentaire().toLocalDateTime().format(formatter)); // Conversion du
-                                                                                               // Timestamp en date
-                                                                                               // formatée
+                        commentaire.getDateCommentaire().toLocalDateTime().format(formatter));
                 commentairesFormates.add(commentaireMap);
             }
 

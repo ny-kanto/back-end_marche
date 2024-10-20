@@ -48,6 +48,7 @@ public class EntreeService {
                 es.setNomUnite(rs.getString("nom_unite"));
                 es.setSommeEntree(rs.getDouble("somme_entree"));
                 es.setSommeSortie(rs.getDouble("somme_sortie"));
+                es.setSommeReserve(rs.getDouble("somme_reserve"));
                 es.setReste(rs.getDouble("reste"));
                 etatStock.add(es);
             }
@@ -78,6 +79,7 @@ public class EntreeService {
                 etatStock.setNomUnite(rs.getString("nom_unite"));
                 etatStock.setSommeEntree(rs.getDouble("somme_entree"));
                 etatStock.setSommeSortie(rs.getDouble("somme_sortie"));
+                etatStock.setSommeReserve(rs.getDouble("somme_reserve"));
                 etatStock.setReste(rs.getDouble("reste"));
             }
 

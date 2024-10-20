@@ -1,5 +1,7 @@
 package com.marche.marche.modele;
 
+import java.sql.Date;
+
 import com.marche.marche.repository.PersonneRepository;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -33,20 +35,25 @@ public class Utilisateur {
 
     private String password;
 
+    @Column(name = "date_inscription")
+    private Date dateInscription;
+
     @Column(name = "is_admin")
     private int isAdmin;
 
-    public Utilisateur(String pseudo, String email, String password) {
+    public Utilisateur(String pseudo, String email, String password, Date dateInscription) {
         this.pseudo = pseudo;
         this.email = email;
         this.password = password;
+        this.dateInscription = dateInscription;
         isAdmin = 0;
     }
 
-    public Utilisateur(String pseudo, String email, String password, int isAdmin) {
+    public Utilisateur(String pseudo, String email, String password, Date dateInscription, int isAdmin) {
         this.pseudo = pseudo;
         this.email = email;
         this.password = password;
+        this.dateInscription = dateInscription;
         this.isAdmin = isAdmin;
     }
 

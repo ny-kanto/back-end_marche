@@ -69,54 +69,18 @@ public class MessageController {
             Utilisateur u = us.getUtilisateur(idUtilisateur);
             Personne p = pes.getPersonneByUtilisateur(u);
 
-            Utilisateur u1 = us.getUtilisateur(idRecepteur);
-            Personne p1 = pes.getPersonneByUtilisateur(u1);
+            // Utilisateur u1 = us.getUtilisateur(idRecepteur);
+            Personne p1 = pes.getPersonneById(idRecepteur);
 
             Conversation conversation = cs.getConversationByVendeurAndAcheteur(p, p1);
 
             Timestamp dateMessage = Timestamp.from(Instant.now());
 
-            Message message = new Message(contenuMessage, dateMessage, conversation, p);
+            Message message = new Message(contenuMessage, dateMessage, conversation, p, 0);
 
             ms.saveMessage(message);
 
             obj.add(message);
-
-            APIResponse api = new APIResponse(null, obj);
-            return ResponseEntity.ok(api);
-        } catch (Exception e) {
-            e.printStackTrace();
-            APIResponse response = new APIResponse(e.getMessage(), null);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
-    }
-
-    // CONTROLLEUR DE CREATION DE CONVERSATION
-    @PostMapping("/save-conversation/{id_recepteur}")
-    public ResponseEntity<APIResponse> saveConversation(
-            @RequestHeader(name = "Authorization") String authorizationHeader,
-            @PathVariable(name = "id_recepteur") int idRecepteur) {
-        try {
-            int idUtilisateur = 0;
-            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-                String token = authorizationHeader.substring(7);
-                Claims claims = jwtUtil.parseJwtClaims(token);
-                idUtilisateur = JwtUtil.getUserId(claims);
-            }
-
-            List<Object> obj = new ArrayList<>();
-
-            Utilisateur u = us.getUtilisateur(idUtilisateur);
-            Personne p = pes.getPersonneByUtilisateur(u);
-
-            Utilisateur u1 = us.getUtilisateur(idRecepteur);
-            Personne p1 = pes.getPersonneByUtilisateur(u1);
-
-            Conversation conversation = new Conversation(p, p1);
-
-            cs.saveConversation(conversation);
-
-            obj.add(conversation);
 
             APIResponse api = new APIResponse(null, obj);
             return ResponseEntity.ok(api);
@@ -145,14 +109,25 @@ public class MessageController {
             Utilisateur u = us.getUtilisateur(idUtilisateur);
             Personne p = pes.getPersonneByUtilisateur(u);
 
-            Utilisateur u1 = us.getUtilisateur(idRecepteur);
-            Personne p1 = pes.getPersonneByUtilisateur(u1);
+            Personne p1 = pes.getPersonneById(idRecepteur);
 
             Conversation conversation = cs.getConversationByVendeurAndAcheteur(p, p1);
+
+            if (conversation == null) {
+                conversation = new Conversation(p, p1);
+                cs.saveConversation(conversation);
+            }
+
+            List<Message> messagesRecepteur = ms.getListMessagesByConversationAndAcheteur(conversation, p1);
+            for (int i = 0; i < messagesRecepteur.size(); i++) {
+                messagesRecepteur.get(i).setStatusMessage(1);
+                ms.saveMessage(messagesRecepteur.get(i));
+            }
 
             List<Message> messages = ms.getListMessagesByConversation(conversation);
 
             obj.add(messages);
+            obj.add(conversation);
 
             APIResponse api = new APIResponse(null, obj);
             return ResponseEntity.ok(api);
@@ -162,5 +137,4 @@ public class MessageController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
-
 }
